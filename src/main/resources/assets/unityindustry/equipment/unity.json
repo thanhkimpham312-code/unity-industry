@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "unityindustry:unity"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "unityindustry:unity"
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "unityindustry",
+  "version": "0.1.0-dev",
+  "name": "Unity Industry V2 Saga",
+  "description": "Science-fiction industry, cores and energy — foundation milestone.",
+  "authors": [
+    "Unity Industry project"
+  ],
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.unityindustry.UnityIndustry"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

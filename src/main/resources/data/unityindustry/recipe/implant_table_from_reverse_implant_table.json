@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "unityindustry:reverse_implant_table"
+  ],
+  "result": {
+    "id": "unityindustry:implant_table",
+    "count": 1
+  }
+}

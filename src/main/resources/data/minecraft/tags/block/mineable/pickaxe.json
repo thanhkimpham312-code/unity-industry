@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "unityindustry:industry_crafting_table",
+    "unityindustry:research_desk",
+    "unityindustry:implant_table",
+    "unityindustry:reverse_implant_table"
+  ]
+}
