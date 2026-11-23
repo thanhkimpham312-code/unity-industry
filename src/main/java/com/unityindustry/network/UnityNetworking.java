@@ -1,0 +1,18 @@
+package com.unityindustry.network;
+
+import com.unityindustry.gameplay.UnityEnergy;
+import com.unityindustry.gameplay.UnityPowers;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
+public final class UnityNetworking {
+    public static void initialize() {
+        PayloadTypeRegistry.playC2S().register(UnityActionPayload.ID, UnityActionPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(UnityActionPayload.ID, (payload, context) -> {
+            // Payload is not trusted; every case must be checked on server.
+            if (payload.action() == 0) UnityEnergy.chargeOne(context.player());
+            if (payload.action() == 1) UnityPowers.toggleFlight(context.player());
+        });
+    }
+    private UnityNetworking() { }
+}
