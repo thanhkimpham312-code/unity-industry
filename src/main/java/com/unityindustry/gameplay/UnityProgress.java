@@ -53,7 +53,7 @@ public final class UnityProgress {
         return holder != null && player.getAdvancements().getOrStartProgress(holder).isDone();
     }
     public static void award(ServerPlayer player, String id) {
-        MinecraftServer server = player.getServer();
+        MinecraftServer server = ((ServerLevel) player.level()).getServer();
         if (server == null) return;
         AdvancementHolder holder = server.getAdvancements().get(
             Identifier.fromNamespaceAndPath(UnityIndustry.MOD_ID, id));

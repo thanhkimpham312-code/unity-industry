@@ -11,6 +11,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import com.unityindustry.gameplay.UnityProgress;
 import com.unityindustry.rules.WorldStageRules;
@@ -22,9 +23,11 @@ public final class ScrapCrawlerEntity extends Spider {
     private boolean stageApplied = false;
     @Override public void tick() {
         super.tick();
-        if (stageApplied || level().isClientSide() || getServer() == null) return;
+        // Only a ServerLevel has a MinecraftServer; the client entity must not scale stats.
+        if (stageApplied || !(level() instanceof ServerLevel serverLevel)) return;
         stageApplied = true;
-        double m = WorldStageRules.scrapCrawlerMultiplier(UnityProgress.worldStage(getServer()));
+        double m = WorldStageRules.scrapCrawlerMultiplier(
+            UnityProgress.worldStage(serverLevel.getServer()));
         var damage = getAttribute(Attributes.ATTACK_DAMAGE);
         var health = getAttribute(Attributes.MAX_HEALTH);
         if (damage != null) damage.setBaseValue(3.0D * m);

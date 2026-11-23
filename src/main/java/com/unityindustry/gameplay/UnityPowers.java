@@ -198,9 +198,9 @@ public final class UnityPowers {
             }
         }
         if (cores.contains(CoreType.MAINTENANCE) && tick % 20 == 0) {
-            ItemStack held = p.getMainHandItem();
-            if (held.isDamaged() && UnityEnergy.consume(p, 1L))
-                held.setDamageValue(Math.max(0, held.getDamageValue() - 1));
+            ItemStack repairItem = p.getMainHandItem();
+            if (repairItem.isDamaged() && UnityEnergy.consume(p, 1L))
+                repairItem.setDamageValue(Math.max(0, repairItem.getDamageValue() - 1));
         }
         if (ultra) p.removeEffect(MobEffects.WITHER);
 
