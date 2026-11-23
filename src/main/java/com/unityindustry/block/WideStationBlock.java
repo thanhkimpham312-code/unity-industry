@@ -2,10 +2,6 @@ package com.unityindustry.block;
 
 import com.unityindustry.menu.StationMenu;
 import com.unityindustry.menu.ImplantMenu;
-import com.unityindustry.menu.ImplantMenu;
-import com.unityindustry.menu.ImplantMenu;
-import com.unityindustry.menu.ImplantMenu;
-import com.unityindustry.menu.ImplantMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -25,32 +21,23 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * Two-block-wide workstation. One item places two horizontal halves; each half
  * renders a different texture. Breaking either half clears the other half.
- * Research opens the server-backed Research menu. Implant GUI is not yet coded.
+ * Research and Implant/Reverse Implant open their respective server-backed menus.
  */
 public final class WideStationBlock extends Block {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<BedPart> PART = BlockStateProperties.BED_PART;
     private final StationMenu.Station station;
-    private final ImplantMenu.Mode mode;
-    private final ImplantMenu.Mode mode;
-    private final ImplantMenu.Mode mode;
-    private final ImplantMenu.Mode mode;
     private final ImplantMenu.Mode mode;
 
     public WideStationBlock(BlockBehaviour.Properties properties, StationMenu.Station station, ImplantMenu.Mode mode) {
         super(properties);
         this.station = station;
-        this.mode = mode;
-        this.mode = mode;
-        this.mode = mode;
-        this.mode = mode;
         this.mode = mode;
         registerDefaultState(stateDefinition.any()
             .setValue(FACING, Direction.NORTH)
