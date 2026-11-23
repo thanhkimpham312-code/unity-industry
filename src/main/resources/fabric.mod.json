@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "unityindustry",
-  "version": "0.2.0-dev",
+  "version": "0.2.1-dev",
   "name": "Unity Industry V2 Saga",
-  "description": "Industry and research GUI prototype, recipes and revised pixel art",
+  "description": "Industry/Research station prototype with repaired GUI and redesigned inventory/equipped Unity armor textures; implant, energy, abilities and mobs not implemented",
   "authors": [
     "Unity Industry project"
   ],

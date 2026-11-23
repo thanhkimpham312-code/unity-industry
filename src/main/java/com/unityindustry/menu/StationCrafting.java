@@ -71,7 +71,8 @@ public final class StationCrafting {
 
         // Vanilla Diamond armor shapes, with Unity Ingots in place of diamonds.
         Item U = ModItems.UNITY_INGOT;
-        if (shape(input, new Item[][] {{U,U,U},{U,null,U},{null,null,null}}))
+        if (shape(input, new Item[][] {{U,U,U},{U,null,U},{null,null,null}})
+                || shape(input, new Item[][] {{null,null,null},{U,U,U},{U,null,U}}))
             return new ItemStack(ModItems.UNITY_HELMET);
         if (shape(input, new Item[][] {{U,null,U},{U,U,U},{U,U,U}}))
             return new ItemStack(ModItems.UNITY_CHESTPLATE);
