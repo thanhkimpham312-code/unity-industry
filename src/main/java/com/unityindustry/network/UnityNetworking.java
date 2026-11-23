@@ -12,6 +12,8 @@ public final class UnityNetworking {
             // Payload is not trusted; every case must be checked on server.
             if (payload.action() == 0) UnityEnergy.chargeOne(context.player());
             if (payload.action() == 1) UnityPowers.toggleFlight(context.player());
+            if (payload.action() >= 10 && payload.action() <= 18)
+                UnityPowers.handleSkillKey(context.player(), payload.action() - 9);
         });
     }
     private UnityNetworking() { }

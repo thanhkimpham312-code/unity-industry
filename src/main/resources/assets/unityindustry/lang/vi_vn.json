@@ -22,7 +22,16 @@
   "block.unityindustry.implant_table": "Bàn Cấy Core",
   "block.unityindustry.reverse_implant_table": "Bàn Tháo Core",
   "itemGroup.unityindustry": "Unity Industry — V2 Saga",
-  "key.category.unityindustry.science": "Unity Industry",
-  "key.unityindustry.charge": "Nạp Unity Energy (X)",
-  "key.unityindustry.fly": "Bật/tắt Flying Core (G)"
+  "key.category.unityindustry.science": "Unity Industry - Điều khiển",
+  "key.unityindustry.charge": "Nạp năng lượng Unity (X)",
+  "key.unityindustry.fly": "Bật/tắt bay (G)",
+  "key.unityindustry.skill_1": "Kỹ năng Core 1",
+  "key.unityindustry.skill_2": "Kỹ năng Core 2",
+  "key.unityindustry.skill_3": "Kỹ năng Core 3",
+  "key.unityindustry.skill_4": "Kỹ năng Core 4",
+  "key.unityindustry.skill_5": "Kỹ năng Core 5",
+  "key.unityindustry.skill_6": "Kỹ năng Core 6",
+  "key.unityindustry.skill_7": "Kỹ năng Core 7",
+  "key.unityindustry.skill_8": "Kỹ năng Core 8",
+  "key.unityindustry.skill_9": "Kỹ năng Core 9"
 }

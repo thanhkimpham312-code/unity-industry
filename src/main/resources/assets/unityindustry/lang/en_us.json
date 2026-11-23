@@ -22,7 +22,16 @@
   "block.unityindustry.implant_table": "Implant Table",
   "block.unityindustry.reverse_implant_table": "Reverse Implant Table",
   "itemGroup.unityindustry": "Unity Industry V2 Saga",
-  "key.category.unityindustry.science": "Unity Industry",
+  "key.category.unityindustry.science": "Unity Industry Controls",
   "key.unityindustry.charge": "Charge Unity Energy (X)",
-  "key.unityindustry.fly": "Toggle Flying Core (G)"
+  "key.unityindustry.fly": "Toggle flight (G)",
+  "key.unityindustry.skill_1": "Core skill 1",
+  "key.unityindustry.skill_2": "Core skill 2",
+  "key.unityindustry.skill_3": "Core skill 3",
+  "key.unityindustry.skill_4": "Core skill 4",
+  "key.unityindustry.skill_5": "Core skill 5",
+  "key.unityindustry.skill_6": "Core skill 6",
+  "key.unityindustry.skill_7": "Core skill 7",
+  "key.unityindustry.skill_8": "Core skill 8",
+  "key.unityindustry.skill_9": "Core skill 9"
 }

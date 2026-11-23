@@ -58,6 +58,24 @@ public final class UnityPowers {
         });
     }
 
+    /** Numeric skill hotkeys are registered and dispatched through server validation.
+     * Slot 2 reuses the existing flight toggle; all other actions are pending.
+     */
+    public static void handleSkillKey(ServerPlayer player, int slot) {
+        if (slot < 1 || slot > 9) return;
+        List<CoreType> cores = worn(player);
+        if (cores.isEmpty()) {
+            player.displayClientMessage(Component.literal("Chưa cấy Core vào Unity Chestplate!"), true);
+            return;
+        }
+        if (slot == 2 && (cores.contains(CoreType.FLYING) || cores.contains(CoreType.ULTRA))) {
+            toggleFlight(player);
+            return;
+        }
+        // Never pretend an unsupported ability has actually activated.
+        player.displayClientMessage(Component.literal("Kỹ năng " + slot + " chưa được lập trình ở bản 0.4.2"), true);
+    }
+
     public static void toggleFlight(ServerPlayer p) {
         List<CoreType> equipped = worn(p);
         boolean flyingCore = equipped.contains(CoreType.FLYING);
