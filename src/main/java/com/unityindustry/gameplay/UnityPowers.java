@@ -1,6 +1,7 @@
 package com.unityindustry.gameplay;
 
 import com.unityindustry.rules.CoreType;
+import com.unityindustry.rules.SkillCatalog;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,13 +25,13 @@ import net.minecraft.world.phys.Vec3;
  * - Pressure Core: water breathing and dolphins grace while underwater (2 UE/s).
  * - Magnet Core: nearby loose item attraction (2 UE/s).
  * - Maintenance Core: repair held damaged item, 1 UE per durability point.
- * - Flying Core: X? no, toggle G, 60 sec maximum, 30 sec cooldown, 2 UE/s.
+ * - Flying Core: manual dynamic skill, max 60 sec per activation, no cooldown, 2 UE/s.
  * - Ultra: always-on Wither immunity, Wither on melee, flight without time cap.
  * Other abilities deliberately remain nonfunctional until implemented accurately.
  */
 public final class UnityPowers {
     private static final Map<UUID, Integer> FLIGHT_TICKS = new HashMap<>();
-    private static final Map<UUID, Long> FLIGHT_COOLDOWN_UNTIL = new HashMap<>();
+    private static final Map<UUID, Integer> HELD_SKILL = new HashMap<>();
     private static long tick = 0L;
 
     private static List<CoreType> worn(ServerPlayer p) {
@@ -58,22 +59,30 @@ public final class UnityPowers {
         });
     }
 
-    /** Numeric skill hotkeys are registered and dispatched through server validation.
-     * Slot 2 reuses the existing flight toggle; all other actions are pending.
+    /** Re-map numbers in Core installation order. The server uses its own authoritative
+     *  chestplate data, so stale or spoofed client packets cannot activate an uninstalled Core.
      */
     public static void handleSkillKey(ServerPlayer player, int slot) {
-        if (slot < 1 || slot > 9) return;
-        List<CoreType> cores = worn(player);
-        if (cores.isEmpty()) {
-            player.displayClientMessage(Component.literal("Chưa cấy Core vào Unity Chestplate!"), true);
-            return;
+        SkillCatalog.Entry skill = SkillCatalog.at(worn(player), slot);
+        if (skill == null) return; // removing Core makes the number disappear
+        switch (skill.action()) {
+            case FLIGHT_TOGGLE -> toggleFlight(player);
+            case WITHER_ROSES, WITHER_SKULL, OPEN_STORAGE, SCAN_ORES ->
+                player.displayClientMessage(Component.literal(
+                    skill.action().label + " chưa có chức năng trong bản thử nghiệm"), true);
+            default -> { /* held actions are validated by setHeldSkill */ }
         }
-        if (slot == 2 && (cores.contains(CoreType.FLYING) || cores.contains(CoreType.ULTRA))) {
-            toggleFlight(player);
-            return;
+    }
+
+    public static void setHeldSkill(ServerPlayer player, int slot, boolean down) {
+        UUID id = player.getUUID();
+        SkillCatalog.Entry skill = SkillCatalog.at(worn(player), slot);
+        if (!down) { HELD_SKILL.remove(id); return; }
+        if (skill != null && skill.action().hold) {
+            HELD_SKILL.put(id, slot);
+            if (skill.action() == SkillCatalog.Action.EXCAVATE)
+                player.displayClientMessage(Component.literal("Excavation 3x3: chưa có xử lý đào an toàn"), true);
         }
-        // Never pretend an unsupported ability has actually activated.
-        player.displayClientMessage(Component.literal("Kỹ năng " + slot + " chưa được lập trình ở bản 0.4.2"), true);
     }
 
     public static void toggleFlight(ServerPlayer p) {
@@ -82,12 +91,7 @@ public final class UnityPowers {
         boolean ultra = equipped.contains(CoreType.ULTRA);
         if (!flyingCore && !ultra) return;
         if (FLIGHT_TICKS.containsKey(p.getUUID())) {
-            if (flyingCore && !ultra) FLIGHT_COOLDOWN_UNTIL.put(p.getUUID(), tick + 600);
             disableFlight(p, true);
-            return;
-        }
-        if (tick < FLIGHT_COOLDOWN_UNTIL.getOrDefault(p.getUUID(), 0L)) {
-            p.displayClientMessage(Component.literal("Flying Core dang hoi chieu"), true);
             return;
         }
         if (UnityEnergy.get(p) <= 0) return;
@@ -119,6 +123,17 @@ public final class UnityPowers {
         List<CoreType> cores = worn(p);
         boolean ultra = cores.contains(CoreType.ULTRA);
         UUID id = p.getUUID();
+        Integer activeSlot = HELD_SKILL.get(id);
+        if (activeSlot != null) {
+            SkillCatalog.Entry action = SkillCatalog.at(cores, activeSlot);
+            // Only a valid installed manual held ability may remain active.
+            if (action == null || !action.action().hold) HELD_SKILL.remove(id);
+            else if (action.action() == SkillCatalog.Action.WHITE_LASER && tick % 10 == 0) {
+                // Deliberately do NOT apply damage until target filtering and combat rules are implemented.
+                // UE is not spent for a placeholder action that has no usable effect.
+                p.displayClientMessage(Component.literal("White Laser: cần bổ sung bộ dò mục tiêu"), true);
+            }
+        }
         if (cores.contains(CoreType.FIRE)) {
             p.clearFire();
             if (p.isInLava() && spendEveryHalfSecond(p)) {
@@ -149,7 +164,6 @@ public final class UnityPowers {
             } else {
                 int elapsed = FLIGHT_TICKS.get(id) + 1;
                 if (!ultra && elapsed >= 1200) {
-                    FLIGHT_COOLDOWN_UNTIL.put(id, tick + 600);
                     disableFlight(p, true);
                 } else if (elapsed % 10 == 0 && !UnityEnergy.consume(p, 1L)) {
                     disableFlight(p, true);

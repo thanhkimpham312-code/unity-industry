@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.equipment.ArmorType;
 
 /** All eleven approved specialist cores are registered, but skills are not active yet. */
@@ -32,6 +33,8 @@ public final class ModItems {
     public static final Item STORAGE_CORE = register("storage_core", new Item.Properties().stacksTo(1));
     public static final Item MAINTENANCE_CORE = register("maintenance_core", new Item.Properties().stacksTo(1));
     public static final Item ULTRA_CORE = register("ultra_core", new Item.Properties().stacksTo(1));
+
+    public static final Item SCRAP_CRAWLER_SPAWN_EGG = register("scrap_crawler_spawn_egg", SpawnEggItem::new, new Item.Properties().spawnEgg(ModEntities.SCRAP_CRAWLER));
 
     public static final Item UNITY_HELMET = armor("unity_helmet", ArmorType.HELMET);
     public static final Item UNITY_CHESTPLATE = armor("unity_chestplate", ArmorType.CHESTPLATE);
@@ -64,6 +67,7 @@ public final class ModItems {
                 output.accept(STORAGE_CORE);
                 output.accept(MAINTENANCE_CORE);
                 output.accept(ULTRA_CORE);
+                output.accept(SCRAP_CRAWLER_SPAWN_EGG);
                 output.accept(ModBlocks.INDUSTRY_CRAFTING_TABLE);
                 output.accept(ModBlocks.RESEARCH_DESK);
                 output.accept(ModBlocks.IMPLANT_TABLE);

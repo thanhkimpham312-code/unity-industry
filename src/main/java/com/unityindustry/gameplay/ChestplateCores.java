@@ -4,6 +4,12 @@ import com.unityindustry.registry.CoreComponents;
 import com.unityindustry.registry.ModItems;
 import com.unityindustry.rules.CoreRules;
 import com.unityindustry.rules.CoreType;
+import com.unityindustry.armor.UnityArmorMaterial;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.equipment.EquipmentAssets;
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.minecraft.world.item.equipment.Equippable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -44,12 +50,30 @@ public final class ChestplateCores {
         ItemStack copy = original.copy();
         copy.set(CoreComponents.INSTALLED_CORES,
             String.join(",", cores.stream().map(Enum::name).toList()));
+        Equippable previous = copy.get(DataComponents.EQUIPPABLE);
+        if (previous != null) {
+            String key = cores.isEmpty() ? "unity" :
+                "unity_" + String.join("_", cores.stream().map(c -> c.name().toLowerCase(java.util.Locale.ROOT))
+                    .sorted().toList());
+            ResourceKey<EquipmentAsset> asset = ResourceKey.create(EquipmentAssets.ROOT_ID,
+                Identifier.fromNamespaceAndPath("unityindustry", key));
+            copy.set(DataComponents.EQUIPPABLE, new Equippable(
+                previous.slot(), previous.equipSound(), java.util.Optional.of(asset),
+                previous.cameraOverlay(), previous.allowedEntities(), previous.dispensable(),
+                previous.swappable(), previous.damageOnHurt(), previous.equipOnInteract(),
+                previous.canBeSheared(), previous.shearingSound()));
+        }
         java.util.List<Component> lore = new java.util.ArrayList<>();
         lore.add(Component.literal("Core: " + CoreRules.slotsUsed(cores) + "/3")
             .withStyle(ChatFormatting.GOLD));
         for (CoreType core : cores) {
             lore.add(Component.literal(core.name().replace('_', ' ') + " Core")
                 .withStyle(core == CoreType.ULTRA ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.AQUA));
+        }
+        var skills = com.unityindustry.rules.SkillCatalog.active(cores);
+        for (int i=0;i<skills.size();i++) {
+            lore.add(Component.literal("[" + (i+1) + "] " + skills.get(i).action().label)
+                .withStyle(ChatFormatting.YELLOW));
         }
         copy.set(DataComponents.LORE, new ItemLore(lore));
         return copy;

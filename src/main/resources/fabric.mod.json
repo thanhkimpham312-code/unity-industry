@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "unityindustry",
-  "version": "0.4.0-dev",
+  "version": "0.4.3-dev",
   "name": "Unity Industry V2 Saga",
-  "description": "Gameplay foundation: 4 functioning stations including Implant/Reverse, persistent UE Charge, selected utility powers, flight prototype; skills and mobs still incomplete.",
+  "description": "Dynamic installed-Core skill mapping, no cooldown on continuous UE abilities, chestplate equipment asset variants and one hostile prototype for summon/Creative; experimental.",
   "authors": [
     "Unity Industry project"
   ],

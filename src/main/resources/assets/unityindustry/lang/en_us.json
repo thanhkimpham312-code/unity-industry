@@ -33,5 +33,7 @@
   "key.unityindustry.skill_6": "Core skill 6",
   "key.unityindustry.skill_7": "Core skill 7",
   "key.unityindustry.skill_8": "Core skill 8",
-  "key.unityindustry.skill_9": "Core skill 9"
+  "key.unityindustry.skill_9": "Core skill 9",
+  "item.unityindustry.scrap_crawler_spawn_egg": "Scrap Crawler Spawn Egg (Prototype)",
+  "entity.unityindustry.scrap_crawler": "Scrap Crawler (Prototype)"
 }

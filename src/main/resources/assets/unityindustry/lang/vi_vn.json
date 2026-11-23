@@ -33,5 +33,7 @@
   "key.unityindustry.skill_6": "Kỹ năng Core 6",
   "key.unityindustry.skill_7": "Kỹ năng Core 7",
   "key.unityindustry.skill_8": "Kỹ năng Core 8",
-  "key.unityindustry.skill_9": "Kỹ năng Core 9"
+  "key.unityindustry.skill_9": "Kỹ năng Core 9",
+  "item.unityindustry.scrap_crawler_spawn_egg": "Trứng Bọ Máy Phế Liệu (thử nghiệm)",
+  "entity.unityindustry.scrap_crawler": "Bọ Máy Phế Liệu (thử nghiệm)"
 }

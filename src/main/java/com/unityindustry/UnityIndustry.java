@@ -6,6 +6,7 @@ import com.unityindustry.network.UnityNetworking;
 import com.unityindustry.registry.CoreComponents;
 import com.unityindustry.registry.ModBlocks;
 import com.unityindustry.registry.ModItems;
+import com.unityindustry.registry.ModEntities;
 import com.unityindustry.registry.ModMenus;
 import net.fabricmc.api.ModInitializer;
 
@@ -14,6 +15,7 @@ public final class UnityIndustry implements ModInitializer {
     public static final String MOD_ID = "unityindustry";
     @Override public void onInitialize() {
         CoreComponents.initialize();
+        ModEntities.initialize();
         UnityEnergy.initialize();
         ModBlocks.initialize();
         ModItems.initialize();

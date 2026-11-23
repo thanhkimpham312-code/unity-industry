@@ -14,6 +14,10 @@ public final class UnityNetworking {
             if (payload.action() == 1) UnityPowers.toggleFlight(context.player());
             if (payload.action() >= 10 && payload.action() <= 18)
                 UnityPowers.handleSkillKey(context.player(), payload.action() - 9);
+            if (payload.action() >= 20 && payload.action() <= 28)
+                UnityPowers.setHeldSkill(context.player(), payload.action() - 19, true);
+            if (payload.action() >= 30 && payload.action() <= 38)
+                UnityPowers.setHeldSkill(context.player(), payload.action() - 29, false);
         });
     }
     private UnityNetworking() { }
