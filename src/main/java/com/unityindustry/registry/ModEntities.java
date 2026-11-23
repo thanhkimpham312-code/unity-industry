@@ -24,7 +24,7 @@ public final class ModEntities {
         Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(UnityIndustry.MOD_ID, "scrap_crawler"));
     public static final EntityType<Zombie> SCRAP_CRAWLER = Registry.register(
         BuiltInRegistries.ENTITY_TYPE, SCRAP_KEY,
-        FabricEntityType.Builder.createMob(Zombie::new, MobCategory.MONSTER, mob -> {
+        FabricEntityType.Builder.<Zombie>createMob(Zombie::new, MobCategory.MONSTER, mob -> {
             mob.defaultAttributes(Zombie::createAttributes);
             mob.spawnRestriction(SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
