@@ -35,5 +35,13 @@
   "key.unityindustry.skill_8": "Core skill 8",
   "key.unityindustry.skill_9": "Core skill 9",
   "item.unityindustry.scrap_crawler_spawn_egg": "Scrap Crawler Spawn Egg (Prototype)",
-  "entity.unityindustry.scrap_crawler": "Scrap Crawler (Prototype)"
+  "entity.unityindustry.scrap_crawler": "Scrap Crawler (Prototype)",
+  "entity.unityindustry.mining_drone": "Mining Drone",
+  "item.unityindustry.mining_drone_spawn_egg": "Mining Drone Spawn Egg",
+  "entity.unityindustry.crystal_beetle": "Crystal Beetle",
+  "item.unityindustry.crystal_beetle_spawn_egg": "Crystal Beetle Spawn Egg",
+  "entity.unityindustry.security_sentinel": "Security Sentinel",
+  "item.unityindustry.security_sentinel_spawn_egg": "Security Sentinel Spawn Egg",
+  "entity.unityindustry.excavator_mk1": "Excavator MK-I",
+  "item.unityindustry.excavator_mk1_spawn_egg": "Excavator MK-I Spawn Egg"
 }

@@ -35,5 +35,13 @@
   "key.unityindustry.skill_8": "Kỹ năng Core 8",
   "key.unityindustry.skill_9": "Kỹ năng Core 9",
   "item.unityindustry.scrap_crawler_spawn_egg": "Trứng Bọ Máy Phế Liệu (thử nghiệm)",
-  "entity.unityindustry.scrap_crawler": "Bọ Máy Phế Liệu (thử nghiệm)"
+  "entity.unityindustry.scrap_crawler": "Bọ Máy Phế Liệu (thử nghiệm)",
+  "entity.unityindustry.mining_drone": "Drone khai khoáng",
+  "item.unityindustry.mining_drone_spawn_egg": "Trứng Drone khai khoáng",
+  "entity.unityindustry.crystal_beetle": "Bọ tinh thể",
+  "item.unityindustry.crystal_beetle_spawn_egg": "Trứng Bọ tinh thể",
+  "entity.unityindustry.security_sentinel": "Robot canh gác",
+  "item.unityindustry.security_sentinel_spawn_egg": "Trứng Robot canh gác",
+  "entity.unityindustry.excavator_mk1": "Máy khai quật MK-I",
+  "item.unityindustry.excavator_mk1_spawn_egg": "Trứng Máy khai quật MK-I"
 }

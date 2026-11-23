@@ -26,5 +26,7 @@ public final class UnityIndustry implements ModInitializer {
         UnityNetworking.initialize();
         UnityPowers.initialize();
         UnityHarvest.initialize();
+        com.unityindustry.gameplay.UnityAbilitiesPrototype.initialize();
+        com.unityindustry.gameplay.UnityRefinery.initialize();
     }
 }

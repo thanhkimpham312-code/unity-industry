@@ -36,6 +36,15 @@ public final class ModItems {
 
     public static final Item SCRAP_CRAWLER_SPAWN_EGG = register("scrap_crawler_spawn_egg", SpawnEggItem::new, new Item.Properties().spawnEgg(ModEntities.SCRAP_CRAWLER));
 
+    public static final Item MINING_DRONE_SPAWN_EGG = register("mining_drone_spawn_egg", SpawnEggItem::new,
+        new Item.Properties().spawnEgg(ModEntities.MINING_DRONE));
+    public static final Item CRYSTAL_BEETLE_SPAWN_EGG = register("crystal_beetle_spawn_egg", SpawnEggItem::new,
+        new Item.Properties().spawnEgg(ModEntities.CRYSTAL_BEETLE));
+    public static final Item SECURITY_SENTINEL_SPAWN_EGG = register("security_sentinel_spawn_egg", SpawnEggItem::new,
+        new Item.Properties().spawnEgg(ModEntities.SECURITY_SENTINEL));
+    public static final Item EXCAVATOR_MK1_SPAWN_EGG = register("excavator_mk1_spawn_egg", SpawnEggItem::new,
+        new Item.Properties().spawnEgg(ModEntities.EXCAVATOR_MK1));
+
     public static final Item UNITY_HELMET = armor("unity_helmet", ArmorType.HELMET);
     public static final Item UNITY_CHESTPLATE = armor("unity_chestplate", ArmorType.CHESTPLATE);
     public static final Item UNITY_LEGGINGS = armor("unity_leggings", ArmorType.LEGGINGS);
@@ -68,6 +77,10 @@ public final class ModItems {
                 output.accept(MAINTENANCE_CORE);
                 output.accept(ULTRA_CORE);
                 output.accept(SCRAP_CRAWLER_SPAWN_EGG);
+                output.accept(MINING_DRONE_SPAWN_EGG);
+                output.accept(CRYSTAL_BEETLE_SPAWN_EGG);
+                output.accept(SECURITY_SENTINEL_SPAWN_EGG);
+                output.accept(EXCAVATOR_MK1_SPAWN_EGG);
                 output.accept(ModBlocks.INDUSTRY_CRAFTING_TABLE);
                 output.accept(ModBlocks.RESEARCH_DESK);
                 output.accept(ModBlocks.IMPLANT_TABLE);

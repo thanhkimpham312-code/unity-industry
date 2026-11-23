@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
@@ -38,6 +40,9 @@ public final class UnityPowers {
     private static final Map<UUID, Integer> FLIGHT_TICKS = new HashMap<>();
     private record HeldSkill(int slot, SkillCatalog.Entry entry) { }
     private static final Map<UUID, HeldSkill> HELD_SKILL = new HashMap<>();
+    // One target for the whole hold session. Do not hop to a new target after a kill.
+    private static final Map<UUID, UUID> WHITE_LASER_LOCK = new HashMap<>();
+    private static final java.util.Set<UUID> WHITE_LASER_ENDED = new java.util.HashSet<>();
     private static long tick = 0L;
 
     private static List<CoreType> worn(ServerPlayer p) {
@@ -73,9 +78,11 @@ public final class UnityPowers {
         if (skill == null) return; // removing Core makes the number disappear
         switch (skill.action()) {
             case FLIGHT_TOGGLE -> toggleFlight(player);
-            case WITHER_ROSES, WITHER_SKULL, OPEN_STORAGE, SCAN_ORES ->
-                player.displayClientMessage(Component.literal(
-                    skill.action().label + " chưa có chức năng trong bản thử nghiệm"), true);
+            case WITHER_ROSES -> UnityAbilitiesPrototype.witherRoses(player);
+            case WITHER_SKULL -> UnityAbilitiesPrototype.witherSkull(player);
+            case SCAN_ORES -> UnityAbilitiesPrototype.scanOres(player);
+            case OPEN_STORAGE -> player.displayClientMessage(Component.literal(
+                "Storage Core cần GUI 9 ô lưu trên item; chức năng chưa hoàn tất"), true);
             default -> { /* held actions are validated by setHeldSkill */ }
         }
     }
@@ -83,42 +90,94 @@ public final class UnityPowers {
     public static void setHeldSkill(ServerPlayer player, int slot, boolean down) {
         UUID id = player.getUUID();
         SkillCatalog.Entry skill = SkillCatalog.at(worn(player), slot);
-        if (!down) { HELD_SKILL.remove(id); return; }
+        if (!down) {
+            HELD_SKILL.remove(id);
+            WHITE_LASER_LOCK.remove(id);
+            WHITE_LASER_ENDED.remove(id);
+            return;
+        }
         if (skill != null && skill.action().hold) {
-            HELD_SKILL.put(id, new HeldSkill(slot, skill));
-            if (skill.action() == SkillCatalog.Action.EXCAVATE)
-                player.displayClientMessage(Component.literal("Excavation 3x3: chưa có xử lý đào an toàn"), true);
+            HeldSkill before = HELD_SKILL.put(id, new HeldSkill(slot, skill));
+            if (before == null || !before.entry().equals(skill)) {
+                WHITE_LASER_LOCK.remove(id);
+                WHITE_LASER_ENDED.remove(id);
+            }
+
         }
     }
 
-    /** White Laser: automatic nearest visible hostile target up to 15 blocks.
-     *  5 HP damage / 10 ticks = 10 HP per second. 1 UE / 10 ticks = 2 UE/s.
-     *  No cooldown and no max-duration. A released key spends no UE.
-     *  The server is authoritative for line of sight, damage and payment.
+    /** Single locked target for one key press: 15-block LOS, hostile mobs only.
+     *  Damage: 5 HP every 10 ticks. Energy: 1 UE every 10 ticks.
+     *  No max hold time and no cooldown. Beam is a single straight ray path.
      */
     private static void whiteLaser(ServerPlayer player) {
-        if (!(player.level() instanceof ServerLevel level) || UnityEnergy.get(player) < 1L) return;
-        var targets = level.getEntitiesOfClass(Monster.class,
-            player.getBoundingBox().inflate(15.0),
-            target -> target.isAlive() && target.distanceToSqr(player) <= 225.0 && player.hasLineOfSight(target));
-        Monster nearest = null;
-        double minDistance = 225.01;
-        for (Monster monster : targets) {
-            double dist = monster.distanceToSqr(player);
-            if (dist < minDistance) { nearest = monster; minDistance = dist; }
+        if (!(player.level() instanceof ServerLevel level)) return;
+        UUID caster = player.getUUID();
+        if (WHITE_LASER_ENDED.contains(caster)) return;
+        Mob target = null;
+        UUID locked = WHITE_LASER_LOCK.get(caster);
+        if (locked != null) {
+            Entity entity = level.getEntity(locked);
+            if (entity instanceof Mob mob) target = mob;
+            if (!laserValid(player, target)) {
+                WHITE_LASER_LOCK.remove(caster);
+                WHITE_LASER_ENDED.add(caster); // needs release to lock a new target
+                return;
+            }
+        } else {
+            // Acquire once, on the first tick of this held beam; never retarget while held.
+            double best = 225.01;
+            for (Mob mob : level.getEntitiesOfClass(Mob.class,
+                    player.getBoundingBox().inflate(15.0), mob -> laserValid(player, mob))) {
+                double d = mob.distanceToSqr(player);
+                if (d < best) { best = d; target = mob; }
+            }
+            if (target == null) return;
+            WHITE_LASER_LOCK.put(caster, target.getUUID());
         }
-        if (nearest == null || !UnityEnergy.consume(player, 1L)) return;
-        Vec3 start = player.getEyePosition();
-        Vec3 end = nearest.getBoundingBox().getCenter();
-        Vec3 diff = end.subtract(start);
-        int steps = Math.max(1, (int)Math.ceil(diff.length() * 3.0));
-        for (int i = 0; i <= steps; i++) {
-            Vec3 point = start.add(diff.scale(i / (double)steps));
-            level.sendParticles(ParticleTypes.END_ROD, point.x, point.y, point.z,
+        if (UnityEnergy.get(player) <= 0) {
+            WHITE_LASER_LOCK.remove(caster);
+            WHITE_LASER_ENDED.add(caster);
+            return;
+        }
+        // A single geometric path (eye to locked target) is refreshed while held.
+        // Dense beam particles are a provisional visual; a client geometry renderer
+        // will eventually replace them with one solid textured cylinder.
+        if (tick % 2 == 0) drawLaserRay(level, player.getEyePosition(),
+            target.getBoundingBox().getCenter());
+        if (tick % 10 == 0) {
+            if (!UnityEnergy.consume(player, 1L)) {
+                WHITE_LASER_LOCK.remove(caster);
+                WHITE_LASER_ENDED.add(caster);
+                return;
+            }
+            target.hurtServer(level, level.damageSources().magic(), 5.0F);
+            if (!target.isAlive()) {
+                UnityProgress.award(player, "laser_kill");
+                WHITE_LASER_LOCK.remove(caster);
+                WHITE_LASER_ENDED.add(caster);
+            }
+        }
+    }
+
+    private static boolean laserValid(ServerPlayer player, Mob mob) {
+        return mob != null && mob.isAlive()
+            && mob.getType().getCategory() == MobCategory.MONSTER
+            && mob.distanceToSqr(player) <= 225.0
+            && player.hasLineOfSight(mob);
+    }
+
+    private static void drawLaserRay(ServerLevel level, Vec3 origin, Vec3 destination) {
+        Vec3 ray = destination.subtract(origin);
+        double length = ray.length();
+        // One straight segment, sampled tightly so it reads as one continuous white ray.
+        // Never branch or add a secondary target.
+        int points = Math.max(1, Math.min(200, (int)Math.ceil(length / 0.14)));
+        for (int i=0; i<=points; i++) {
+            Vec3 at = origin.add(ray.scale(i / (double)points));
+            level.sendParticles(ParticleTypes.END_ROD, at.x, at.y, at.z,
                 1, 0.0, 0.0, 0.0, 0.0);
         }
-        nearest.hurtServer(level, level.damageSources().magic(), 5.0F);
-        if (!nearest.isAlive()) UnityProgress.award(player, "laser_kill");
     }
 
     public static void toggleFlight(ServerPlayer p) {
@@ -176,8 +235,12 @@ public final class UnityPowers {
             // Hold must never silently turn into a different skill after removing a Core.
             if (!held.entry().equals(stillInstalled) || !held.entry().action().hold) {
                 HELD_SKILL.remove(id);
-            } else if (held.entry().action() == SkillCatalog.Action.WHITE_LASER && tick % 10 == 0) {
+                WHITE_LASER_LOCK.remove(id);
+                WHITE_LASER_ENDED.remove(id);
+            } else if (held.entry().action() == SkillCatalog.Action.WHITE_LASER) {
                 whiteLaser(p);
+            } else if (held.entry().action() == SkillCatalog.Action.EXCAVATE && tick % 4 == 0) {
+                UnityExcavation.tunnel(p);
             }
         }
         if (cores.contains(CoreType.FIRE)) {
