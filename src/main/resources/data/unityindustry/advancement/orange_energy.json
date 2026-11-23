@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:unity_ingot",
+      "count": 1
+    },
+    "title": {
+      "text": "Năng Lượng Màu Cam"
+    },
+    "description": {
+      "text": "Nhấn X để chuyển một Unity Ingot trong kho thành 100 UE; năng lượng được giữ khi chết và đăng nhập lại."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:science_epoch"
+}

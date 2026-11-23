@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:unity_chestplate",
+      "count": 1
+    },
+    "title": {
+      "text": "Bộ Giáp Tương Lai"
+    },
+    "description": {
+      "text": "Tạo Unity Chestplate từ Unity Ingot; áo nguyên bản kín trước ngực và có thể cấy những lõi nghiên cứu."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:unity_chestplate"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:unity_helmet"
+}

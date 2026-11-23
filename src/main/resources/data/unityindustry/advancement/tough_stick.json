@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:tough_stick",
+      "count": 1
+    },
+    "title": {
+      "text": "Cứng Hơn Cả Thép"
+    },
+    "description": {
+      "text": "Đặt hai khối Obsidian theo chiều dọc trong lưới công nghiệp để tạo Tough Stick có màu tím than."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:tough_stick"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:industry_birth"
+}

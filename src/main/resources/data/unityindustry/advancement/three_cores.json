@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:prime_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Sức Mạnh Nhân Ba"
+    },
+    "description": {
+      "text": "Cấy đủ ba Core thường khác loại lên cùng một Unity Chestplate, với một lõi tròn được chia ba màu."
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:first_implant"
+}

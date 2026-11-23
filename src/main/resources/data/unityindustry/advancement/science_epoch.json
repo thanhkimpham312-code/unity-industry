@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:unity_ingot",
+      "count": 1
+    },
+    "title": {
+      "text": "Kỷ Nguyên Khoa Học"
+    },
+    "description": {
+      "text": "Sở hữu Unity Ingot lần đầu để khởi động hành trình công nghệ, mở khóa việc tích lũy và nạp Unity Energy."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:unity_ingot"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:industry_birth"
+}

@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:research_desk",
+      "count": 1
+    },
+    "title": {
+      "text": "Phòng Thí Nghiệm Đầu Tiên"
+    },
+    "description": {
+      "text": "Chế tạo Research Desk bằng Observer, Book và các nguyên liệu cần thiết để nghiên cứu những loại Core chuyên dụng."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:research_desk"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:industry_birth"
+}

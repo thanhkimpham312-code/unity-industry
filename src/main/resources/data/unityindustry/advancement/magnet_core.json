@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:magnet_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Không Bỏ Sót Thứ Gì"
+    },
+    "description": {
+      "text": "Nghiên cứu Magnet Core từ Lodestone để hút những vật phẩm rơi gần người chơi trong khoảng sáu block."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:magnet_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

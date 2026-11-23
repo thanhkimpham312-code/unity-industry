@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "unityindustry",
-  "version": "0.4.4-dev",
+  "version": "0.4.6-dev",
   "name": "Unity Industry V2 Saga",
-  "description": "Flight stops on landing; safe visible chestplate base texture; custom-hostile 8-legged Scrap Crawler prototype. Core-colored worn armor overlay and progression still experimental.",
+  "description": "Additional achievements and persistent world progression; Ultra White Laser prototype; unfinished skills remain explicitly documented.",
   "authors": [
     "Unity Industry project"
   ],

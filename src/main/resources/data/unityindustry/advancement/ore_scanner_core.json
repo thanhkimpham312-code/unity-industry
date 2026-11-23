@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:ore_scanner_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Con Mắt Địa Chất"
+    },
+    "description": {
+      "text": "Nghiên cứu Ore Scanner Core với Echo Shard để chuẩn bị quét tìm quặng ẩn sâu trong phạm vi mười sáu block."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:ore_scanner_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

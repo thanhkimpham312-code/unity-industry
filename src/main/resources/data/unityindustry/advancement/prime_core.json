@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:prime_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Trái Tim Công Nghệ"
+    },
+    "description": {
+      "text": "Kết hợp bốn Unity Ingot và một Nether Star tại bàn công nghiệp để tạo Prime Core chưa có năng lực."
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:prime_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:research_bench"
+}

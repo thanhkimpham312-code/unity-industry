@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:excavation_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Máy Khoan Di Động"
+    },
+    "description": {
+      "text": "Nghiên cứu Excavation Core từ Netherite Pickaxe; kỹ năng đào mặt phẳng ba nhân ba phải tránh các khối quý."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:excavation_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

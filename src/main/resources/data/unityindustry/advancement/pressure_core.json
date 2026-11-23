@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:pressure_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Chinh Phục Đại Dương"
+    },
+    "description": {
+      "text": "Nghiên cứu Pressure Core từ Conduit; trong nước nó có thể cung cấp oxy và hỗ trợ việc di chuyển."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:pressure_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

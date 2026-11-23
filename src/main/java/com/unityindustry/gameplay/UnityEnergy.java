@@ -46,6 +46,7 @@ public final class UnityEnergy {
                 player.setAttached(ENERGY, current + 100L);
                 LAST_CHARGE.put(player.getUUID(), now);
                 unlock(player);
+                UnityProgress.award(player, "orange_energy");
                 return true;
             }
         }

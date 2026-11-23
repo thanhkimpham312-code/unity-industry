@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:ultra_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Vượt Qua Giới Hạn"
+    },
+    "description": {
+      "text": "Ghép hai Prime Core trong Research Desk để chế tạo Ultra Core, lõi chiến đấu tối thượng chiếm đủ ba ô."
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:ultra_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

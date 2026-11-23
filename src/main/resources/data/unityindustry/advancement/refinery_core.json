@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:refinery_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Lò Luyện Kim Di Động"
+    },
+    "description": {
+      "text": "Nghiên cứu Refinery Core từ Blast Furnace, hướng đến nung raw iron, gold và copper bằng Unity Energy."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:refinery_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

@@ -11,11 +11,29 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import com.unityindustry.gameplay.UnityProgress;
+import com.unityindustry.rules.WorldStageRules;
 
 /** Hostile prototype with spider geometry and explicit pursuit goals.
  *  Unlike Vanilla Spider, it never switches to daylight-neutral targeting.
  */
 public final class ScrapCrawlerEntity extends Spider {
+    private boolean stageApplied = false;
+    @Override public void tick() {
+        super.tick();
+        if (stageApplied || level().isClientSide() || getServer() == null) return;
+        stageApplied = true;
+        double m = WorldStageRules.scrapCrawlerMultiplier(UnityProgress.worldStage(getServer()));
+        var damage = getAttribute(Attributes.ATTACK_DAMAGE);
+        var health = getAttribute(Attributes.MAX_HEALTH);
+        if (damage != null) damage.setBaseValue(3.0D * m);
+        if (health != null) {
+            health.setBaseValue(16.0D * m);
+            setHealth((float)(16.0D * m));
+        }
+    }
+
     public ScrapCrawlerEntity(EntityType<? extends Spider> type, Level level) {
         super(type, level);
     }

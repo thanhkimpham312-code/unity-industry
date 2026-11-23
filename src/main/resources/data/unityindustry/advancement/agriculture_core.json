@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:agriculture_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Nông Nghiệp Tự Động"
+    },
+    "description": {
+      "text": "Nghiên cứu Agriculture Core với Bone Meal, hướng đến tự gieo lại cây đã thu hoạch khi còn đủ hạt giống."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:agriculture_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

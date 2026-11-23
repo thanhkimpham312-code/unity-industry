@@ -1,6 +1,8 @@
 package com.unityindustry.menu;
 
 import com.unityindustry.gameplay.ChestplateCores;
+import com.unityindustry.gameplay.UnityProgress;
+import net.minecraft.server.level.ServerPlayer;
 import com.unityindustry.registry.ModItems;
 import net.minecraft.network.chat.Component;
 import com.unityindustry.registry.ModBlocks;
@@ -94,6 +96,12 @@ public final class ImplantMenu extends AbstractContainerMenu {
             // Check again server-side before consuming; invalid client output cannot destroy inputs.
             CoreType next = ChestplateCores.typeOf(input.getItem(1));
             if (next != null && CoreRules.implant(ChestplateCores.get(armor), next).success()) {
+                List<CoreType> installed = CoreRules.implant(ChestplateCores.get(armor), next).cores();
+                if (viewer instanceof ServerPlayer sp) {
+                    UnityProgress.award(sp, "first_implant");
+                    if (installed.size() == 3) UnityProgress.award(sp, "three_cores");
+                    if (next == CoreType.ULTRA) UnityProgress.award(sp, "ultra_implant");
+                }
                 input.removeItem(0, 1);
                 input.removeItem(1, 1);
             }
@@ -103,6 +111,7 @@ public final class ImplantMenu extends AbstractContainerMenu {
             if (selected >= 0 && selected < cores.size()) {
                 ItemStack changed = ChestplateCores.with(armor, CoreRules.removeOne(cores, cores.get(selected)));
                 input.setItem(0, changed);
+                if (viewer instanceof ServerPlayer sp) UnityProgress.award(sp, "reverse_implant");
                 selection.set(0, 0);
             }
         }

@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.core.particles.ParticleTypes;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.network.chat.Component;
@@ -33,7 +36,8 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class UnityPowers {
     private static final Map<UUID, Integer> FLIGHT_TICKS = new HashMap<>();
-    private static final Map<UUID, Integer> HELD_SKILL = new HashMap<>();
+    private record HeldSkill(int slot, SkillCatalog.Entry entry) { }
+    private static final Map<UUID, HeldSkill> HELD_SKILL = new HashMap<>();
     private static long tick = 0L;
 
     private static List<CoreType> worn(ServerPlayer p) {
@@ -81,10 +85,40 @@ public final class UnityPowers {
         SkillCatalog.Entry skill = SkillCatalog.at(worn(player), slot);
         if (!down) { HELD_SKILL.remove(id); return; }
         if (skill != null && skill.action().hold) {
-            HELD_SKILL.put(id, slot);
+            HELD_SKILL.put(id, new HeldSkill(slot, skill));
             if (skill.action() == SkillCatalog.Action.EXCAVATE)
                 player.displayClientMessage(Component.literal("Excavation 3x3: chưa có xử lý đào an toàn"), true);
         }
+    }
+
+    /** White Laser: automatic nearest visible hostile target up to 15 blocks.
+     *  5 HP damage / 10 ticks = 10 HP per second. 1 UE / 10 ticks = 2 UE/s.
+     *  No cooldown and no max-duration. A released key spends no UE.
+     *  The server is authoritative for line of sight, damage and payment.
+     */
+    private static void whiteLaser(ServerPlayer player) {
+        if (!(player.level() instanceof ServerLevel level) || UnityEnergy.get(player) < 1L) return;
+        var targets = level.getEntitiesOfClass(Monster.class,
+            player.getBoundingBox().inflate(15.0),
+            target -> target.isAlive() && target.distanceToSqr(player) <= 225.0 && player.hasLineOfSight(target));
+        Monster nearest = null;
+        double minDistance = 225.01;
+        for (Monster monster : targets) {
+            double dist = monster.distanceToSqr(player);
+            if (dist < minDistance) { nearest = monster; minDistance = dist; }
+        }
+        if (nearest == null || !UnityEnergy.consume(player, 1L)) return;
+        Vec3 start = player.getEyePosition();
+        Vec3 end = nearest.getBoundingBox().getCenter();
+        Vec3 diff = end.subtract(start);
+        int steps = Math.max(1, (int)Math.ceil(diff.length() * 3.0));
+        for (int i = 0; i <= steps; i++) {
+            Vec3 point = start.add(diff.scale(i / (double)steps));
+            level.sendParticles(ParticleTypes.END_ROD, point.x, point.y, point.z,
+                1, 0.0, 0.0, 0.0, 0.0);
+        }
+        nearest.hurtServer(level, level.damageSources().magic(), 5.0F);
+        if (!nearest.isAlive()) UnityProgress.award(player, "laser_kill");
     }
 
     public static void toggleFlight(ServerPlayer p) {
@@ -136,15 +170,14 @@ public final class UnityPowers {
         List<CoreType> cores = worn(p);
         boolean ultra = cores.contains(CoreType.ULTRA);
         UUID id = p.getUUID();
-        Integer activeSlot = HELD_SKILL.get(id);
-        if (activeSlot != null) {
-            SkillCatalog.Entry action = SkillCatalog.at(cores, activeSlot);
-            // Only a valid installed manual held ability may remain active.
-            if (action == null || !action.action().hold) HELD_SKILL.remove(id);
-            else if (action.action() == SkillCatalog.Action.WHITE_LASER && tick % 10 == 0) {
-                // Deliberately do NOT apply damage until target filtering and combat rules are implemented.
-                // UE is not spent for a placeholder action that has no usable effect.
-                p.displayClientMessage(Component.literal("White Laser: cần bổ sung bộ dò mục tiêu"), true);
+        HeldSkill held = HELD_SKILL.get(id);
+        if (held != null) {
+            SkillCatalog.Entry stillInstalled = SkillCatalog.at(cores, held.slot());
+            // Hold must never silently turn into a different skill after removing a Core.
+            if (!held.entry().equals(stillInstalled) || !held.entry().action().hold) {
+                HELD_SKILL.remove(id);
+            } else if (held.entry().action() == SkillCatalog.Action.WHITE_LASER && tick % 10 == 0) {
+                whiteLaser(p);
             }
         }
         if (cores.contains(CoreType.FIRE)) {

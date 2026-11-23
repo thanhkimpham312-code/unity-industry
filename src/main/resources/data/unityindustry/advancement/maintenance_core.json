@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:maintenance_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Không Cần Đe Nữa"
+    },
+    "description": {
+      "text": "Nghiên cứu Maintenance Core với Anvil nhằm dùng Unity Energy sửa dần công cụ, bảo toàn phù phép và độ bền."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:maintenance_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

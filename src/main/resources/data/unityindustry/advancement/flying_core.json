@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:flying_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Đôi Cánh Công Nghệ"
+    },
+    "description": {
+      "text": "Nghiên cứu Flying Core từ Elytra và Prime Core để mở khóa khả năng bay tiêu hao Unity Energy khi đang ở trên không."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:flying_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

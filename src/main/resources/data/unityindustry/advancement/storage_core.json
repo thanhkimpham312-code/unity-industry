@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:storage_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Kho Đồ Bỏ Túi"
+    },
+    "description": {
+      "text": "Nghiên cứu Storage Core với Shulker Shell để chuẩn bị mở kho chín ô lưu riêng cùng dữ liệu Core."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "unityindustry:storage_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:prime_core"
+}

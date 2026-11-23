@@ -2,6 +2,8 @@ package com.unityindustry;
 
 import com.unityindustry.gameplay.UnityEnergy;
 import com.unityindustry.gameplay.UnityPowers;
+import com.unityindustry.gameplay.UnityProgress;
+import com.unityindustry.gameplay.UnityHarvest;
 import com.unityindustry.network.UnityNetworking;
 import com.unityindustry.registry.CoreComponents;
 import com.unityindustry.registry.ModBlocks;
@@ -17,10 +19,12 @@ public final class UnityIndustry implements ModInitializer {
         CoreComponents.initialize();
         ModEntities.initialize();
         UnityEnergy.initialize();
+        UnityProgress.initialize();
         ModBlocks.initialize();
         ModItems.initialize();
         ModMenus.initialize();
         UnityNetworking.initialize();
         UnityPowers.initialize();
+        UnityHarvest.initialize();
     }
 }

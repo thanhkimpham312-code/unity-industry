@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "id": "unityindustry:ultra_core",
+      "count": 1
+    },
+    "title": {
+      "text": "Ánh Sáng Tận Diệt"
+    },
+    "description": {
+      "text": "Giữ phím kỹ năng White Laser để khóa mục tiêu trong mười lăm block, tiêu hao năng lượng liên tục và hạ một quái."
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "unityindustry:ultra_implant"
+}
