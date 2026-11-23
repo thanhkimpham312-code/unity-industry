@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "unityindustry",
-  "version": "0.4.3-dev",
+  "version": "0.4.4-dev",
   "name": "Unity Industry V2 Saga",
-  "description": "Dynamic installed-Core skill mapping, no cooldown on continuous UE abilities, chestplate equipment asset variants and one hostile prototype for summon/Creative; experimental.",
+  "description": "Flight stops on landing; safe visible chestplate base texture; custom-hostile 8-legged Scrap Crawler prototype. Core-colored worn armor overlay and progression still experimental.",
   "authors": [
     "Unity Industry project"
   ],

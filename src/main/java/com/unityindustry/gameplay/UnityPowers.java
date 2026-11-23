@@ -17,6 +17,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
+import com.unityindustry.registry.ModItems;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -120,6 +122,17 @@ public final class UnityPowers {
                 }
             }
         }
+        // Repair legacy 0.4.3 chestplates whose EQUIPPABLE asset points to a
+        // missing generated variant. This keeps installed Cores and durability.
+        ItemStack wornArmor = p.getItemBySlot(EquipmentSlot.CHEST);
+        if (ChestplateCores.validArmor(wornArmor)) {
+            var standardEquipment = new ItemStack(ModItems.UNITY_CHESTPLATE)
+                .get(DataComponents.EQUIPPABLE);
+            if (standardEquipment != null
+                    && !standardEquipment.equals(wornArmor.get(DataComponents.EQUIPPABLE))) {
+                wornArmor.set(DataComponents.EQUIPPABLE, standardEquipment);
+            }
+        }
         List<CoreType> cores = worn(p);
         boolean ultra = cores.contains(CoreType.ULTRA);
         UUID id = p.getUUID();
@@ -160,14 +173,23 @@ public final class UnityPowers {
 
         if (FLIGHT_TICKS.containsKey(id)) {
             if (!(ultra || cores.contains(CoreType.FLYING)) || UnityEnergy.get(p) <= 0) {
-                disableFlight(p, true);
+                disableFlight(p, !p.onGround());
             } else {
                 int elapsed = FLIGHT_TICKS.get(id) + 1;
-                if (!ultra && elapsed >= 1200) {
+                // Landing ends an active flight automatically. A short takeoff grace
+                // period permits toggling flight while the player's feet touch ground.
+                // This is NOT a cooldown: the player may toggle flight again at once.
+                if (elapsed > 15 && p.onGround()) {
+                    disableFlight(p, false);
+                } else if (!ultra && elapsed >= 1200) {
+                    disableFlight(p, !p.onGround());
+                } else if (!p.onGround() && elapsed % 10 == 0
+                        && !UnityEnergy.consume(p, 1L)) {
                     disableFlight(p, true);
-                } else if (elapsed % 10 == 0 && !UnityEnergy.consume(p, 1L)) {
-                    disableFlight(p, true);
-                } else FLIGHT_TICKS.put(id, elapsed);
+                } else {
+                    // No UE is consumed while grounded or merely in takeoff grace.
+                    FLIGHT_TICKS.put(id, elapsed);
+                }
             }
         }
 
