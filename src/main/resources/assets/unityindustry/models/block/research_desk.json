@@ -1,6 +1,8 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_bottom_top",
   "textures": {
-    "all": "unityindustry:block/research_desk"
+    "side": "unityindustry:block/research_desk_side",
+    "top": "unityindustry:block/research_desk_top",
+    "bottom": "unityindustry:block/research_desk_bottom"
   }
 }
