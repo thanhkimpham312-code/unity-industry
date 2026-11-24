@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -25,6 +24,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.component.DataComponents;
 import com.unityindustry.registry.ModItems;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 
 /**
  * Server-side powers completed in this milestone:
@@ -106,14 +108,17 @@ public final class UnityPowers {
         }
     }
 
-    /** Single locked target for one key press: 15-block LOS, hostile mobs only.
-     *  Damage: 5 HP every 10 ticks. Energy: 1 UE every 10 ticks.
-     *  No max hold time and no cooldown. Beam is a single straight ray path.
+    /** White Laser - aim at a Mob with the crosshair first, then lock that exact Mob.
+     *  ALL Mob subclasses are valid (hostile / neutral / passive / modded).
+     *  No players. The first Mob intersected by the 15-block ray wins; a wall
+     *  cuts the ray off. Damage: 5 HP / 10 ticks, UE: 1 / 10 ticks.
+     *  No cooldown and no target switching until the key is released.
      */
     private static void whiteLaser(ServerPlayer player) {
         if (!(player.level() instanceof ServerLevel level)) return;
         UUID caster = player.getUUID();
         if (WHITE_LASER_ENDED.contains(caster)) return;
+
         Mob target = null;
         UUID locked = WHITE_LASER_LOCK.get(caster);
         if (locked != null) {
@@ -121,30 +126,25 @@ public final class UnityPowers {
             if (entity instanceof Mob mob) target = mob;
             if (!laserValid(player, target)) {
                 WHITE_LASER_LOCK.remove(caster);
-                WHITE_LASER_ENDED.add(caster); // needs release to lock a new target
+                WHITE_LASER_ENDED.add(caster);
                 return;
             }
         } else {
-            // Acquire once, on the first tick of this held beam; never retarget while held.
-            double best = 225.01;
-            for (Mob mob : level.getEntitiesOfClass(Mob.class,
-                    player.getBoundingBox().inflate(15.0), mob -> laserValid(player, mob))) {
-                double d = mob.distanceToSqr(player);
-                if (d < best) { best = d; target = mob; }
-            }
+            // Aim controls acquisition; NEVER choose the nearest mob automatically.
+            target = aimedMob(level, player);
             if (target == null) return;
             WHITE_LASER_LOCK.put(caster, target.getUUID());
         }
+
         if (UnityEnergy.get(player) <= 0) {
             WHITE_LASER_LOCK.remove(caster);
             WHITE_LASER_ENDED.add(caster);
             return;
         }
-        // A single geometric path (eye to locked target) is refreshed while held.
-        // Dense beam particles are a provisional visual; a client geometry renderer
-        // will eventually replace them with one solid textured cylinder.
+        // One straight path from the caster's eye to this single locked Mob.
+        // Particle sampling is still a provisional visual, not a solid beam mesh.
         if (tick % 2 == 0) drawLaserRay(level, player.getEyePosition(),
-            target.getBoundingBox().getCenter());
+                target.getBoundingBox().getCenter());
         if (tick % 10 == 0) {
             if (!UnityEnergy.consume(player, 1L)) {
                 WHITE_LASER_LOCK.remove(caster);
@@ -160,9 +160,35 @@ public final class UnityPowers {
         }
     }
 
+    /** Select first Mob crossed by the player's 15-block look ray, before any
+     * blocking terrain. Bounding-box clipping makes aim precise and independent
+     * of a Mob's hostility, size, or distance to the player.
+     */
+    private static Mob aimedMob(ServerLevel level, ServerPlayer player) {
+        Vec3 eye = player.getEyePosition();
+        Vec3 end = eye.add(player.getLookAngle().normalize().scale(15.0));
+        HitResult wall = level.clip(new ClipContext(eye, end,
+            ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+        double maxSq = wall.getType() == HitResult.Type.MISS
+            ? 225.0 : eye.distanceToSqr(wall.getLocation());
+        Mob nearest = null;
+        double nearestSq = maxSq + 1.0e-6;
+        AABB rayBounds = new AABB(eye, end).inflate(1.0);
+        for (Mob candidate : level.getEntitiesOfClass(Mob.class, rayBounds,
+                mob -> mob.isAlive() && mob.isPickable())) {
+            var intersection = candidate.getBoundingBox().inflate(0.12).clip(eye, end);
+            if (intersection.isEmpty()) continue;
+            double hitSq = eye.distanceToSqr(intersection.get());
+            if (hitSq <= maxSq + 1.0e-6 && hitSq < nearestSq) {
+                nearest = candidate;
+                nearestSq = hitSq;
+            }
+        }
+        return nearest;
+    }
+
     private static boolean laserValid(ServerPlayer player, Mob mob) {
         return mob != null && mob.isAlive()
-            && mob.getType().getCategory() == MobCategory.MONSTER
             && mob.distanceToSqr(player) <= 225.0
             && player.hasLineOfSight(mob);
     }

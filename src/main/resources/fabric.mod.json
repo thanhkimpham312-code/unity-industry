@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "unityindustry",
-  "version": "0.4.6-dev",
+  "version": "0.4.9-dev",
   "name": "Unity Industry V2 Saga",
-  "description": "Additional achievements and persistent world progression; Ultra White Laser prototype; unfinished skills remain explicitly documented.",
+  "description": "Aim-directed Ultra White Laser and five original industrial mob 3D rigs (experimental).",
   "authors": [
     "Unity Industry project"
   ],
