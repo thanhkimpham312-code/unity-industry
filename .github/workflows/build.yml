@@ -1,39 +1,53 @@
+if len(matching) != 1:
+              raise SystemExit(f'Expected exactly one playable JAR named {expected}, found {len(matching)}')
+          source = matching[0]
+          with zipfile.ZipFile(source) as jar:
+              broken = jar.testzip()
+              if broken is not None:
+                  raise SystemExit(f'Broken ZIP/JAR member: {broken}')
+              names = jar.namelist()
+              if 'fabric.mod.json' not in names:
+                  raise SystemExit('Missing Fabric mod descriptor: fabric.mod.json')
+              manifest = json.loads(jar.read('fabric.mod.json'))
+              if manifest.get('id') != 'unityindustry':
+                  raise SystemExit('Unexpected mod id in fabric.mod.json')
+              if 'com/unityindustry/UnityIndustry.class' not in names:
+                  raise SystemExit('Missing Unity Industry entrypoint class')
+              if any(name.startswith('/') or '..' in Path(name).parts for name in names):
+                  raise SystemExit('Unexpected absolute/traversal path inside JAR')
+              forbidden = [n for n in names if n.lower().endswith(('.exe', '.dll', '.bat', '.cmd', '.ps1', '.sh'))]
+              if forbidden:
+                  raise SystemExit(f'Unexpected executable-like files inside JAR: {forbidden}')
 
-name: Build Unity Industry
+          dist = Path('dist')
+          dist.mkdir(exist_ok=True)
+          target = dist / 'UnityIndustry-Playable.jar'
+          shutil.copyfile(source, target)
+          digest = hashlib.sha256(target.read_bytes()).hexdigest()
+          (dist / 'SHA256SUMS.txt').write_text(f'{digest}  {target.name}\n', encoding='utf-8')
+          (dist / 'BUILD_INFO.txt').write_text(
+              f'Git commit: {os.environ["BUILD_COMMIT"]}\n'
+              f'Original Gradle output: {source.name}\n'
+              f'Mod ID: {manifest["id"]}\n'
+              f'SHA-256: {digest}\n'
+              'Note: Structural checks and SHA-256 do not establish that a file is malware-free.\n',
+              encoding='utf-8')
+          print('One selected playable JAR:', source.name)
+          print('SHA-256:', digest)
+          PY
 
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '9.2.1'
-
-      - name: Build Unity Industry
-        run: gradle build --no-daemon --stacktrace
-
-      - name: Upload mod JAR
+      - name: Upload verified JAR only
         uses: actions/upload-artifact@v4
         with:
-          name: Unity-Industry-JAR
-          path: build/libs/*.jar
+          name: UnityIndustry-Playable-With-SHA256
+          path: dist/UnityIndustry-Playable.jar
+          if-no-files-found: error
+
+      - name: Upload text verification report separately
+        uses: actions/upload-artifact@v4
+        with:
+          name: UnityIndustry-Build-Verification-Report
+          path: |
+            dist/SHA256SUMS.txt
+            dist/BUILD_INFO.txt
           if-no-files-found: error
