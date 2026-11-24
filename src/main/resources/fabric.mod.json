@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "unityindustry",
-  "version": "0.4.9-dev",
+  "version": "0.5.0-dev",
   "name": "Unity Industry V2 Saga",
-  "description": "Aim-directed Ultra White Laser and five original industrial mob 3D rigs (experimental).",
+  "description": "Patch A: functional Core gameplay and scanner highlighting (experimental).",
   "authors": [
     "Unity Industry project"
   ],

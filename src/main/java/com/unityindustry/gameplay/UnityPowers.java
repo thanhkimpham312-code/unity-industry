@@ -83,8 +83,7 @@ public final class UnityPowers {
             case WITHER_ROSES -> UnityAbilitiesPrototype.witherRoses(player);
             case WITHER_SKULL -> UnityAbilitiesPrototype.witherSkull(player);
             case SCAN_ORES -> UnityAbilitiesPrototype.scanOres(player);
-            case OPEN_STORAGE -> player.displayClientMessage(Component.literal(
-                "Storage Core cần GUI 9 ô lưu trên item; chức năng chưa hoàn tất"), true);
+            case OPEN_STORAGE -> UnityStorage.open(player);
             default -> { /* held actions are validated by setHeldSkill */ }
         }
     }
@@ -252,6 +251,7 @@ public final class UnityPowers {
                 wornArmor.set(DataComponents.EQUIPPABLE, standardEquipment);
             }
         }
+        UnityExcavation.trackMovement(p);
         List<CoreType> cores = worn(p);
         boolean ultra = cores.contains(CoreType.ULTRA);
         UUID id = p.getUUID();
@@ -286,10 +286,8 @@ public final class UnityPowers {
                     drop.setDeltaMovement(drop.getDeltaMovement().add(direction.normalize().scale(0.19)));
             }
         }
-        if (cores.contains(CoreType.MAINTENANCE) && tick % 20 == 0) {
-            ItemStack repairItem = p.getMainHandItem();
-            if (repairItem.isDamaged() && UnityEnergy.consume(p, 1L))
-                repairItem.setDamageValue(Math.max(0, repairItem.getDamageValue() - 1));
+        if (cores.contains(CoreType.MAINTENANCE) && tick % 5 == 0) {
+            repairOneDurability(p); // one UE = one durability, prioritise equipped items
         }
         if (ultra) p.removeEffect(MobEffects.WITHER);
 
@@ -318,6 +316,27 @@ public final class UnityPowers {
         // Minimal action-bar readout until the bespoke orange XP replacement is ready.
         if (UnityEnergy.unlocked(p) && tick % 40 == 0) {
             p.displayClientMessage(Component.literal("§6Unity Energy: " + UnityEnergy.get(p) + " UE"), true);
+        }
+    }
+    private static void repairOneDurability(ServerPlayer p) {
+        if (UnityEnergy.get(p) < 1L) return;
+        java.util.List<ItemStack> priority = new java.util.ArrayList<>();
+        priority.add(p.getMainHandItem());
+        priority.add(p.getItemBySlot(EquipmentSlot.CHEST));
+        priority.add(p.getItemBySlot(EquipmentSlot.HEAD));
+        priority.add(p.getItemBySlot(EquipmentSlot.LEGS));
+        priority.add(p.getItemBySlot(EquipmentSlot.FEET));
+        priority.add(p.getOffhandItem());
+        for (int i=0;i<9;i++) priority.add(p.getInventory().getItem(i));
+        for (int i=9;i<36;i++) priority.add(p.getInventory().getItem(i));
+        for (ItemStack item : priority) {
+            if (item.isDamageableItem() && item.getDamageValue() > 0) {
+                if (UnityEnergy.consume(p, 1L)) {
+                    item.setDamageValue(item.getDamageValue() - 1);
+                    p.getInventory().setChanged();
+                }
+                break; // repair only one point per 5 ticks to avoid UE spikes
+            }
         }
     }
     private UnityPowers() { }

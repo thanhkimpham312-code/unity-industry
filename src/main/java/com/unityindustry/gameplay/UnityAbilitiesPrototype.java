@@ -10,6 +10,12 @@ import java.util.UUID;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.unityindustry.network.OreScanPayload;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -24,14 +30,15 @@ import net.minecraft.world.entity.EquipmentSlot;
 
 /**
  * Experimental actions beyond the original 0.4.6 prototype.
- * Scanner currently reports real ore coordinates, not translucent x-ray boxes.
+ * Scanner sends bounded ore positions to client for bright block-shaped contours.
  * Rose cloud and skull blast use visible particles, not bespoke models/physics.
  * A safe server-side baseline while asset / render features are developed.
  */
 public final class UnityAbilitiesPrototype {
     private record Scan(long until, long nextCharge) { }
     private record RoseField(ServerLevel level, UUID owner, Vec3 at, long until) { }
-    private static final Map<UUID, Long> SCAN_COOLDOWN = new HashMap<>();
+    private static final TagKey<Block> COMMON_ORES = TagKey.create(Registries.BLOCK,
+        Identifier.fromNamespaceAndPath("c", "ores"));
     private static final Map<UUID, Scan> SCANS = new HashMap<>();
     private static final List<RoseField> ROSES = new ArrayList<>();
 
@@ -43,12 +50,17 @@ public final class UnityAbilitiesPrototype {
                 long now = p.level().getGameTime();
                 if (now >= scan.until() ||
                         !ChestplateCores.get(p.getItemBySlot(EquipmentSlot.CHEST)).contains(CoreType.ORE_SCANNER)) {
-                    SCANS.remove(p.getUUID()); continue;
+                    SCANS.remove(p.getUUID());
+                    ServerPlayNetworking.send(p, new OreScanPayload(""));
+                    continue;
                 }
                 if (now >= scan.nextCharge()) {
                     if (UnityEnergy.consume(p, 1L)) {
                         SCANS.put(p.getUUID(), new Scan(scan.until(), now + 10));
-                    } else SCANS.remove(p.getUUID());
+                    } else {
+                        SCANS.remove(p.getUUID());
+                        ServerPlayNetworking.send(p, new OreScanPayload(""));
+                    }
                 }
             }
             var it = ROSES.iterator();
@@ -71,36 +83,36 @@ public final class UnityAbilitiesPrototype {
         });
     }
 
+    /** Scan and reveal the closest 96 ore blocks in a 16-block sphere.
+     *  Never edits ore; scan continues for 200 ticks, charges 1 UE / 10 ticks,
+     *  and may be restarted immediately (NO COOLDOWN).
+     */
     public static void scanOres(ServerPlayer player) {
         if (!(player.level() instanceof ServerLevel level)) return;
         if (!ChestplateCores.get(player.getItemBySlot(EquipmentSlot.CHEST)).contains(CoreType.ORE_SCANNER)) return;
-        long now = level.getGameTime();
-        if (now < SCAN_COOLDOWN.getOrDefault(player.getUUID(), 0L)) {
-            player.displayClientMessage(Component.literal("Ore Scanner đang hồi chiêu"), true);
-            return;
-        }
         if (UnityEnergy.get(player) < 1L) return;
+        long now = level.getGameTime();
         BlockPos center = player.blockPosition();
         List<BlockPos> ores = new ArrayList<>();
-        // True 3D radius, bounded at 16 blocks. Uses block ids, no world edits.
+        // Bounded 3D radius, runs only on a manual scan (not on each tick).
         for (BlockPos pos : BlockPos.betweenClosed(center.offset(-16,-16,-16),center.offset(16,16,16))) {
-            if (pos.distSqr(center) > 256) continue;
-            var block = level.getBlockState(pos).getBlock();
-            String name = BuiltInRegistries.BLOCK.getKey(block).getPath();
-            if (name.endsWith("_ore") || name.startsWith("deepslate_") && name.endsWith("_ore"))
+            if (pos.distSqr(center) > 256 || !level.hasChunkAt(pos)) continue;
+            var state = level.getBlockState(pos);
+            String name = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();
+            if (state.is(COMMON_ORES) || name.endsWith("_ore") || name.equals("ancient_debris"))
                 ores.add(pos.immutable());
         }
         ores.sort(Comparator.comparingDouble(pos -> pos.distSqr(center)));
-        StringBuilder msg = new StringBuilder("§bOre Scanner (16b): " + ores.size() + " quặng");
-        for (int i=0;i<Math.min(6,ores.size());i++) {
-            BlockPos pos=ores.get(i);
-            String type=BuiltInRegistries.BLOCK.getKey(level.getBlockState(pos).getBlock()).getPath();
-            msg.append("\n§e").append(type).append(": ")
-                .append(pos.getX()).append(",").append(pos.getY()).append(",").append(pos.getZ());
+        int count = Math.min(96,ores.size()); // protect network/per-frame renderer
+        StringBuilder packed = new StringBuilder();
+        for (int i=0; i<count; i++) {
+            if (i>0) packed.append(';');
+            packed.append(ores.get(i).asLong());
         }
-        player.displayClientMessage(Component.literal(msg.toString()), false);
+        ServerPlayNetworking.send(player, new OreScanPayload(packed.toString()));
+        player.displayClientMessage(Component.literal("§bOre Scanner: " + ores.size()
+            + " quặng trong bán kính 16; hiện " + count + " viền gần nhất trong 10 giây"), true);
         SCANS.put(player.getUUID(),new Scan(now+200,now));
-        SCAN_COOLDOWN.put(player.getUUID(),now+600); // 30s; continuous UE while active
     }
 
     public static void witherRoses(ServerPlayer player) {

@@ -21,6 +21,7 @@ import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
 
 /**
  * Implant:  chestplate + 1 Core -> modified chestplate. Inputs are consumed once.
@@ -132,7 +133,15 @@ public final class ImplantMenu extends AbstractContainerMenu {
                     CoreType next = ChestplateCores.typeOf(input.getItem(1));
                     if (next != null) {
                         CoreRules.ImplantResult proposal = CoreRules.implant(cores, next);
-                        if (proposal.success()) result = ChestplateCores.with(armor, proposal.cores());
+                        if (proposal.success()) {
+                            result = ChestplateCores.with(armor, proposal.cores());
+                            // Storage inventory lives on the Core item when detached.
+                            // Transfer it to the armor before consuming that input.
+                            if (next == CoreType.STORAGE) {
+                                var container = input.getItem(1).get(DataComponents.CONTAINER);
+                                if (container != null) result.set(DataComponents.CONTAINER, container);
+                            }
+                        }
                         else if (!input.getItem(1).isEmpty()) {
                             String message = switch (proposal.status()) {
                                 case OVERLOAD -> "Quá tải!";
@@ -148,7 +157,12 @@ public final class ImplantMenu extends AbstractContainerMenu {
                     }
                 } else if (!cores.isEmpty()) {
                     int i = Math.min(selection.get(0), cores.size() - 1);
-                    result = ChestplateCores.itemFor(cores.get(i));
+                    CoreType removedCore = cores.get(i);
+                    result = ChestplateCores.itemFor(removedCore);
+                    if (removedCore == CoreType.STORAGE) {
+                        var container = armor.get(DataComponents.CONTAINER);
+                        if (container != null) result.set(DataComponents.CONTAINER, container);
+                    }
                 }
             }
             output.setItem(0, result);

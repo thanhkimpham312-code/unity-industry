@@ -44,6 +44,9 @@ public final class ChestplateCores {
         ItemStack copy = original.copy();
         copy.set(CoreComponents.INSTALLED_CORES,
             String.join(",", cores.stream().map(Enum::name).toList()));
+        // A detached Storage Core carries its own container; the chestplate
+        // MUST lose the component to avoid cloning the inventory on removal.
+        if (!cores.contains(CoreType.STORAGE)) copy.remove(DataComponents.CONTAINER);
         // Critical visibility safeguard: do NOT point a chestplate to an unverified
         // generated equipment asset here. A missing client-side asset makes the worn
         // armor render invisible. The regular Unity equipment asset is guaranteed by

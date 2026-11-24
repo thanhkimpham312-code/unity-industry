@@ -29,6 +29,7 @@ public final class UnityIndustryClient implements ClientModInitializer {
         EntityRenderers.register(ModEntities.EXCAVATOR_MK1, ctx -> new IndustrialMobRenderer<>(
             ctx, IndustrialModelLayers.EXCAVATOR, IndustrialMobModel.Kind.EXCAVATOR_MK1,
             "textures/entity/excavator_mk1.png", 0.9f));
+        OreScannerHighlight.initialize();
         UnityKeys.initialize();
     }
 }

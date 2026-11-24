@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 public final class UnityNetworking {
     public static void initialize() {
         PayloadTypeRegistry.playC2S().register(UnityActionPayload.ID, UnityActionPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(OreScanPayload.ID, OreScanPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(UnityActionPayload.ID, (payload, context) -> {
             // Payload is not trusted; every case must be checked on server.
             if (payload.action() == 0) UnityEnergy.chargeOne(context.player());
