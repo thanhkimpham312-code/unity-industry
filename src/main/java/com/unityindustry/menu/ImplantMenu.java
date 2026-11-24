@@ -120,9 +120,9 @@ public final class ImplantMenu extends AbstractContainerMenu {
         slotsChanged(input);
     }
 
-    @Override public void slotsChanged(Container container) {
-        super.slotsChanged(container);
-        if (container != input || changing) return;
+    @Override public void slotsChanged(Container changedContainer) {
+        super.slotsChanged(changedContainer);
+        if (changedContainer != input || changing) return;
         access.execute((level, pos) -> {
             if (level.isClientSide()) return;
             ItemStack armor = input.getItem(0);

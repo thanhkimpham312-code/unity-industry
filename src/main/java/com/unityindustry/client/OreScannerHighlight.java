@@ -33,7 +33,7 @@ public final class OreScannerHighlight {
             if (revealed.isEmpty() || ticksLeft <= 0) return;
             Minecraft mc = Minecraft.getInstance();
             if (mc.level == null) return;
-            Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
+            Vec3 camera = ctx.worldState().cameraRenderState.pos;
             var matrix = ctx.matrices();
             var lineBuffer = ctx.consumers().getBuffer(RenderTypes.linesTranslucent());
             // Bright cyan full-block contours. Rendered in camera-relative coordinates.
