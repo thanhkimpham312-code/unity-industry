@@ -11,6 +11,7 @@ public final class SkillCatalog {
     public enum Action {
         FLIGHT_TOGGLE("Bay", false),
         SCAN_ORES("Quét quặng", false),
+        GROW_CROPS("Thúc đẩy cây trồng", false),
         EXCAVATE("Đào 3x3", true),
         OPEN_STORAGE("Kho 9 ô", false),
         WITHER_ROSES("Hoa Wither", false),
@@ -26,6 +27,7 @@ public final class SkillCatalog {
         return switch (core) {
             case FLYING -> List.of(Action.FLIGHT_TOGGLE);
             case ORE_SCANNER -> List.of(Action.SCAN_ORES);
+            case AGRICULTURE -> List.of(Action.GROW_CROPS);
             case EXCAVATION -> List.of(Action.EXCAVATE);
             case STORAGE -> List.of(Action.OPEN_STORAGE);
             case ULTRA -> List.of(Action.WITHER_ROSES, Action.FLIGHT_TOGGLE,

@@ -61,6 +61,22 @@ public final class UnityRefinery {
             }
         });
     }
+    /** Refine drops vacuumed by Excavation before they reach the inventory.
+     *  Vanilla block-break listener handles ordinary hand-mining separately.
+     */
+    public static ItemStack refineExcavated(ServerPlayer player,
+                                           net.minecraft.world.level.block.state.BlockState state,
+                                           ItemStack drop) {
+        if (drop.isEmpty() || !ChestplateCores.get(player.getItemBySlot(EquipmentSlot.CHEST))
+                .contains(CoreType.REFINERY)) return drop;
+        Item raw = rawForOre(state.getBlock());
+        Item ingot = ingotFor(raw);
+        if (raw == null || ingot == null || !drop.is(raw)) return drop;
+        long cost = 2L * drop.getCount();
+        if (!UnityEnergy.consume(player, cost)) return drop;
+        return new ItemStack(ingot, drop.getCount());
+    }
+
     private static Item rawForOre(Block block) {
         if (block == Blocks.IRON_ORE || block == Blocks.DEEPSLATE_IRON_ORE) return Items.RAW_IRON;
         if (block == Blocks.GOLD_ORE || block == Blocks.DEEPSLATE_GOLD_ORE) return Items.RAW_GOLD;

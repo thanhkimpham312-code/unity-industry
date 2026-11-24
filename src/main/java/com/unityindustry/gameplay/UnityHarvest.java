@@ -55,6 +55,38 @@ public final class UnityHarvest {
         });
     }
 
+    /** Manual dynamic-key skill: spend 2 UE to finish growing each nearby crop.
+     *  Growth never requires seeds; harvesting/replanting still needs seeds and
+     *  its separate 2 UE per crop. Maximum 12 plants per key press prevents
+     *  accidental mass energy consumption on large fields.
+     */
+    public static int growNearby(ServerPlayer player) {
+        if (!(player.level() instanceof ServerLevel level) || !hasCore(player)) return 0;
+        int grown = 0;
+        BlockPos center = player.blockPosition();
+        for (int y = -1; y <= 1 && grown < 12; y++) {
+            for (int dx = -RADIUS; dx <= RADIUS && grown < 12; dx++) {
+                for (int dz = -RADIUS; dz <= RADIUS && grown < 12; dz++) {
+                    BlockPos at = center.offset(dx, y, dz);
+                    if (!level.hasChunkAt(at) || !player.mayInteract(level, at)) continue;
+                    BlockState before = level.getBlockState(at);
+                    if (!(before.getBlock() instanceof CropBlock crop)
+                            || seedFor(before.getBlock()) == null || crop.isMaxAge(before)) continue;
+                    if (!level.getBlockState(at.below()).is(Blocks.FARMLAND)) continue;
+                    if (!UnityEnergy.consume(player, 2L)) return grown;
+                    level.setBlock(at, crop.getStateForAge(crop.getMaxAge()), 3);
+                    level.levelEvent(2005, at, 0); // vanilla bonemeal growth particles
+                    grown++;
+                }
+            }
+        }
+        if (grown == 0) player.displayClientMessage(
+                net.minecraft.network.chat.Component.literal("§eAgriculture: Không có cây chưa chín hoặc thiếu UE"), true);
+        else player.displayClientMessage(
+                net.minecraft.network.chat.Component.literal("§aAgriculture: Đã thúc đẩy " + grown + " cây"), true);
+        return grown;
+    }
+
     private static boolean hasCore(ServerPlayer p) {
         return ChestplateCores.get(p.getItemBySlot(EquipmentSlot.CHEST)).contains(CoreType.AGRICULTURE);
     }

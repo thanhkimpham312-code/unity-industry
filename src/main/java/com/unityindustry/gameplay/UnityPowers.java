@@ -58,6 +58,7 @@ public final class UnityPowers {
     }
 
     public static void initialize() {
+        UnityExcavation.initialize();
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             tick++;
             for (ServerPlayer p : server.getPlayerList().getPlayers()) updatePlayer(p);
@@ -83,6 +84,7 @@ public final class UnityPowers {
             case WITHER_ROSES -> UnityAbilitiesPrototype.witherRoses(player);
             case WITHER_SKULL -> UnityAbilitiesPrototype.witherSkull(player);
             case SCAN_ORES -> UnityAbilitiesPrototype.scanOres(player);
+            case GROW_CROPS -> UnityHarvest.growNearby(player);
             case OPEN_STORAGE -> UnityStorage.open(player);
             default -> { /* held actions are validated by setHeldSkill */ }
         }
