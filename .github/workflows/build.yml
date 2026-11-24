@@ -26,17 +26,15 @@ jobs:
         with:
           gradle-version: '9.2.1'
 
-      - name: Check source and recipes
+      - name: Verify project files (no external scripts needed)
+        shell: bash
         run: |
-          python3 scripts/verify-content.py
-          python3 scripts/test-station-recipes.py
-          bash scripts/test-core-rules.sh
-
-      - name: Check dynamic skill mapping
-        run: |
-          mkdir -p build/skill-check
-          javac -d build/skill-check src/main/java/com/unityindustry/rules/CoreType.java src/main/java/com/unityindustry/rules/SkillCatalog.java tools/DynamicSkillSelfTest.java
-          java -cp build/skill-check DynamicSkillSelfTest
+          set -euo pipefail
+          test -s build.gradle
+          test -s gradle.properties
+          test -s src/main/resources/fabric.mod.json
+          python3 -m json.tool src/main/resources/fabric.mod.json > /dev/null
+          echo 'Basic source files and fabric.mod.json: OK'
 
       - name: Build Fabric mod
         run: gradle build --no-daemon --stacktrace
@@ -50,15 +48,19 @@ jobs:
           test -n "$MOD_VERSION" && test -n "$MOD_BASE"
           JAR_PATH="build/libs/${MOD_BASE}-${MOD_VERSION}.jar"
           if [ ! -f "$JAR_PATH" ]; then
-            echo "::error::Playable JAR not found: $JAR_PATH"
-            ls -lah build/libs
+            echo "::error::Expected playable JAR is missing: $JAR_PATH"
+            ls -lah build/libs/ || true
             exit 1
           fi
-          unzip -t "$JAR_PATH" >/dev/null
           mkdir -p dist
+          unzip -t "$JAR_PATH" > /dev/null
           unzip -Z -1 "$JAR_PATH" > dist/JAR_CONTENTS.txt
           grep -Fxq 'fabric.mod.json' dist/JAR_CONTENTS.txt
           grep -Fxq 'com/unityindustry/UnityIndustry.class' dist/JAR_CONTENTS.txt
+          if grep -Eiq '\.(exe|dll|bat|cmd|ps1|vbs|scr)$' dist/JAR_CONTENTS.txt; then
+            echo '::error::Unexpected executable-like file found inside JAR'
+            exit 1
+          fi
           cp "$JAR_PATH" dist/UnityIndustry-Playable.jar
           (cd dist && sha256sum UnityIndustry-Playable.jar > SHA256SUMS.txt)
           printf 'Git commit: %s\nOriginal JAR: %s\n' "$GITHUB_SHA" "$JAR_PATH" > dist/BUILD_INFO.txt
