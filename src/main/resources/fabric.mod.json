@@ -3,7 +3,7 @@
   "id": "unityindustry",
   "version": "${version}",
   "name": "Unity Industry V2 Saga",
-  "description": "Industrial hostile machines. Early experimental prototype; not the final gameplay specification.",
+  "description": "Existing Unity Industry stations, equipment, cores and gameplay plus experimental hostile industrial machines.",
   "authors": ["Unity Industry project"],
   "environment": "*",
   "entrypoints": {
@@ -15,5 +15,6 @@
     "minecraft": "~1.21.11",
     "java": ">=21",
     "fabric-api": "*"
-  }
+  },
+  "accessWidener": "unityindustry.accesswidener"
 }

@@ -1,7 +1,7 @@
 package com.unityindustry.entity;
 
 import com.unityindustry.UnityIndustry;
-import com.unityindustry.progress.WorldStage;
+import com.unityindustry.gameplay.UnityProgress;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -22,14 +22,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Prototype-only registry: all 8 suggested normal/elite machines + 3 suggested bosses.
+ * Additive prototype registry: 7 new normal/elite machines + 3 bosses.
+ * The existing Scrap Crawler is registered ONLY by ModEntities; do not duplicate its ID.
  * The names, size, model, combat numbers, and progression thresholds are NOT final.
  */
 public final class ModMachines {
     private ModMachines() {}
 
     public static final List<MachineSpec> SPECS = List.of(
-        new MachineSpec("scrap_crawler",      1, 12,  3, 0.30, 1, 0.75f, 0.75f, 32, false),
         new MachineSpec("rivet_hound",        1, 18,  4, 0.34, 2, 0.90f, 1.10f, 19, false),
         new MachineSpec("bolt_sentry",        2, 23,  4, 0.22, 4, 0.95f, 1.55f, 13, false),
         new MachineSpec("smelter_brute",      3, 55,  9, 0.18, 9, 1.30f, 2.65f,  9, false),
@@ -55,7 +55,7 @@ public final class ModMachines {
                     Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     (type, world, reason, pos, random) ->
                         Monster.checkMonsterSpawnRules(type, world, reason, pos, random)
-                        && WorldStage.current(world.getLevel().getServer()) >= spec.minStage()
+                        && (1 + UnityProgress.worldStage(world.getLevel().getServer())) >= spec.minStage()
                 )
             );
             EntityType<MachineEntity> type = Registry.register(BuiltInRegistries.ENTITY_TYPE, key,
