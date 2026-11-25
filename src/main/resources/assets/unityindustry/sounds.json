@@ -1,0 +1,362 @@
+{
+  "mob.scrap_crawler.ambient": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/scrap_crawler/ambient",
+        "volume": 0.9,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.scrap_crawler.step": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/scrap_crawler/step",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.scrap_crawler.alert": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/scrap_crawler/alert",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.scrap_crawler.charge": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/scrap_crawler/charge",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.scrap_crawler.attack": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/scrap_crawler/attack",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.scrap_crawler.special": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/scrap_crawler/special",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.scrap_crawler.hurt": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/scrap_crawler/hurt",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.scrap_crawler.death": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/scrap_crawler/death",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.mining_drone.ambient": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/mining_drone/ambient",
+        "volume": 0.9,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.mining_drone.step": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/mining_drone/step",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.mining_drone.alert": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/mining_drone/alert",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.mining_drone.charge": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/mining_drone/charge",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.mining_drone.attack": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/mining_drone/attack",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.mining_drone.special": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/mining_drone/special",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.mining_drone.hurt": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/mining_drone/hurt",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.mining_drone.death": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/mining_drone/death",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.crystal_beetle.ambient": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/crystal_beetle/ambient",
+        "volume": 0.9,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.crystal_beetle.step": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/crystal_beetle/step",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.crystal_beetle.alert": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/crystal_beetle/alert",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.crystal_beetle.charge": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/crystal_beetle/charge",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.crystal_beetle.attack": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/crystal_beetle/attack",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.crystal_beetle.special": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/crystal_beetle/special",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.crystal_beetle.hurt": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/crystal_beetle/hurt",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.crystal_beetle.death": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/crystal_beetle/death",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.security_sentinel.ambient": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/security_sentinel/ambient",
+        "volume": 0.9,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.security_sentinel.step": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/security_sentinel/step",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.security_sentinel.alert": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/security_sentinel/alert",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.security_sentinel.charge": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/security_sentinel/charge",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.security_sentinel.attack": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/security_sentinel/attack",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.security_sentinel.special": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/security_sentinel/special",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.security_sentinel.hurt": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/security_sentinel/hurt",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.security_sentinel.death": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/security_sentinel/death",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.excavator_mk1.ambient": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/excavator_mk1/ambient",
+        "volume": 0.9,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.excavator_mk1.step": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/excavator_mk1/step",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.excavator_mk1.alert": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/excavator_mk1/alert",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.excavator_mk1.charge": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/excavator_mk1/charge",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.excavator_mk1.attack": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/excavator_mk1/attack",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.excavator_mk1.special": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/excavator_mk1/special",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.excavator_mk1.hurt": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/excavator_mk1/hurt",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "mob.excavator_mk1.death": {
+    "sounds": [
+      {
+        "name": "unityindustry:mob/excavator_mk1/death",
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  }
+}

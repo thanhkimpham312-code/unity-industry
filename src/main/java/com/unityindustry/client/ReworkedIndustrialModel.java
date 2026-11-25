@@ -24,6 +24,8 @@ public final class ReworkedIndustrialModel extends EntityModel<LivingEntityRende
     private final ModelPart[] legs;
     private final ModelPart[] rotors;
     private final ModelPart[] tools;
+    private final ModelPart[] wheels;
+    private final ModelPart[] turrets;
 
     public ReworkedIndustrialModel(ModelPart root, Kind kind) {
         super(root);
@@ -31,9 +33,12 @@ public final class ReworkedIndustrialModel extends EntityModel<LivingEntityRende
         this.root = root;
         this.head = maybe(root, "head");
         this.legs = scan(root, "leg_", kind == Kind.SCRAP_CRAWLER ? 8 :
-            kind == Kind.CRYSTAL_BEETLE ? 6 : kind == Kind.EXCAVATOR_MK1 ? 2 : 0);
-        this.rotors = scan(root, "rotor_", kind == Kind.MINING_DRONE || kind == Kind.SECURITY_SENTINEL ? 4 : 0);
-        this.tools = scan(root, "tool_", kind == Kind.EXCAVATOR_MK1 || kind == Kind.SCRAP_CRAWLER ? 2 : 1);
+            kind == Kind.CRYSTAL_BEETLE ? 6 : kind == Kind.SECURITY_SENTINEL ? 4 : 0);
+        this.rotors = scan(root, "rotor_", kind == Kind.MINING_DRONE ? 4 : 0);
+        this.tools = scan(root, "tool_", kind == Kind.EXCAVATOR_MK1 || kind == Kind.SCRAP_CRAWLER ? 2 :
+            kind == Kind.SECURITY_SENTINEL ? 2 : 1);
+        this.wheels = scan(root, "wheel_", kind == Kind.EXCAVATOR_MK1 ? 6 : 0);
+        this.turrets = scan(root, "turret_", kind == Kind.SECURITY_SENTINEL ? 2 : 0);
     }
 
     private static ModelPart maybe(ModelPart root, String name) {
@@ -61,11 +66,18 @@ public final class ReworkedIndustrialModel extends EntityModel<LivingEntityRende
         for (int i = 0; i < rotors.length; i++) {
             if (rotors[i] != null) rotors[i].yRot = state.ageInTicks * (i % 2 == 0 ? 1.3F : -1.3F);
         }
+        for (int i = 0; i < wheels.length; i++) {
+            if (wheels[i] != null) wheels[i].xRot = state.walkAnimationPos * 0.6F;
+        }
+        for (int i = 0; i < turrets.length; i++) {
+            if (turrets[i] != null) turrets[i].yRot = Mth.sin(state.ageInTicks * 0.05F + i) * 0.17F;
+        }
         for (int i = 0; i < tools.length; i++) {
             if (tools[i] == null) continue;
             if (kind == Kind.MINING_DRONE) tools[i].zRot = state.ageInTicks * 0.85F;
             else if (kind == Kind.SCRAP_CRAWLER) tools[i].yRot = Mth.sin(state.ageInTicks * 0.15F + i) * 0.33F;
-            else if (kind == Kind.EXCAVATOR_MK1) tools[i].xRot = Mth.sin(state.ageInTicks * 0.11F + i * Mth.PI) * 0.18F;
+            else if (kind == Kind.EXCAVATOR_MK1) tools[i].xRot = Mth.sin(state.ageInTicks * 0.09F + i * Mth.PI) * 0.24F;
+            else if (kind == Kind.SECURITY_SENTINEL) tools[i].xRot = Mth.sin(state.ageInTicks * 0.03F + i) * 0.08F;
         }
     }
 
@@ -133,38 +145,57 @@ public final class ReworkedIndustrialModel extends EntityModel<LivingEntityRende
                 cube(root,"tool_0",69,73,-3,-2,-2,6,4,4,0,14,-13);
             }
             case SECURITY_SENTINEL -> {
-                cube(root,"body",0,0,-7,-5,-5,14,10,10,0,12,0);
-                cube(root,"deck",54,0,-6,-3,-3,12,5,6,0,6,0);
-                cube(root,"head",0,37,-5,-4,-4,10,7,8,0,10,-6);
-                cube(root,"optic",45,38,-4,-2,-1,8,4,2,0,10,-11);
-                cube(root,"rail_left",0,73,-3,-3,-9,6,6,15,-10,13,-2);
-                cube(root,"rail_right",0,73,-3,-3,-9,6,6,15,10,13,-2);
-                cube(root,"antenna",95,73,-1,-8,-1,2,10,2,0,4,1);
-                cube(root,"thruster",97,73,-3,-2,-3,6,6,6,0,20,0);
-                cube(root,"tool_0",69,73,-4,-1,-2,8,3,4,0,10,-14);
+                // Ground quadruped: low central hull, 4 pistoned legs, rotating twin cannon pods.
+                cube(root,"body",0,0,-9,-5,-10,18,10,20,0,13,0);
+                cube(root,"deck",54,0,-7,-3,-7,14,4,14,0,8,0);
+                cube(root,"reactor",100,0,-4,-3,-2,8,7,4,0,12,-11);
+                cube(root,"head",0,37,-5,-4,-4,10,7,8,0,6,-10);
+                cube(root,"optic",45,38,-3,-2,-2,6,3,3,0,5,-14);
+                cube(root,"antenna",95,73,-1,-8,-1,2,10,2,0,1,6);
+                cube(root,"caution_shield",54,0,-5,-2,-2,10,3,4,0,5,4);
                 for (int i=0;i<4;i++) {
-                    int sx=i%2==0?-1:1, sz=i/2==0?-1:1;
-                    cube(root,"rotor_"+i,42,89,-6,-1,-1,12,2,2,sx*9,7,sz*7);
+                    int sx = (i%2 == 0 ? -1 : 1), sz = (i/2 == 0 ? -1 : 1);
+                    cube(root,"leg_"+i,0,73,-3,-2,-3,6,8,6,sx*10.5F,13,sz*7.0F);
+                    cube(root,"shin_"+i,42,74,-3,-2,-3,6,9,6,sx*13.5F,17,sz*8.0F);
+                    cube(root,"foot_"+i,69,73,-4,-2,-6,8,4,12,sx*13.5F,22,sz*8.0F);
+                    cube(root,"piston_"+i,100,48,-1,-2,-2,2,10,4,sx*12.0F,14,sz*8.0F);
+                }
+                for (int i=0;i<2;i++) {
+                    int sx = i == 0 ? -1 : 1;
+                    cube(root,"turret_"+i,0,52,-4,-4,-6,8,8,12,sx*10.5F,7,-1);
+                    cube(root,"tool_"+i,69,73,-2,-2,-7,4,4,14,sx*10.5F,7,-10);
+                    cube(root,"barrel_ring_"+i,97,74,-4,-4,-2,8,8,4,sx*10.5F,7,-15);
                 }
             }
             case EXCAVATOR_MK1 -> {
-                cube(root,"body",0,0,-9,-9,-6,18,17,12,0,10,0);
-                cube(root,"armor_left",54,0,-4,-5,-4,8,8,8,-6,6,-1);
-                cube(root,"armor_right",54,0,-4,-5,-4,8,8,8,6,6,-1);
-                cube(root,"reactor",97,37,-4,-4,-1,8,8,3,0,10,-7);
-                cube(root,"head",0,37,-5,-5,-4,10,8,8,0,-3,-1);
-                cube(root,"optic",45,38,-4,-2,-1,8,3,2,0,-4,-5);
-                cube(root,"hydraulic_left",0,73,-4,-2,-4,8,14,8,-12,7,0);
-                cube(root,"hydraulic_right",0,73,-4,-2,-4,8,14,8,12,7,0);
-                cube(root,"tool_0",69,73,-4,-2,-4,8,9,8,-12,17,-3);
-                cube(root,"tool_1",69,73,-4,-2,-4,8,9,8,12,17,-3);
-                for (int i=0;i<2;i++) {
-                    int side=i==0?-1:1;
-                    cube(root,"leg_"+i,42,73,-4,-2,-4,8,12,8,side*5,17,0);
-                    cube(root,"foot_"+i,0,98,-5,-2,-7,10,4,14,side*5,23,-2);
+                // Low tracked excavator: continuous tread housings instead of golem legs.
+                cube(root,"body",0,0,-10,-8,-10,20,16,20,0,12,0);
+                cube(root,"deck",54,0,-10,-3,-9,20,5,18,0,5,0);
+                cube(root,"cabin",0,37,-7,-6,-7,14,9,14,0,3,-2);
+                cube(root,"head",54,37,-5,-4,-3,10,6,7,0,1,-10);
+                cube(root,"optic",45,38,-4,-2,-1,8,3,2,0,1,-14);
+                cube(root,"reactor",97,37,-4,-4,-2,8,8,4,0,12,-12);
+                for (int side=0;side<2;side++) {
+                    int x = side == 0 ? -1 : 1;
+                    cube(root,"track_"+side,0,73,-5,-7,-13,10,12,26,x*13,19,0);
+                    cube(root,"track_guard_"+side,55,70,-6,-3,-14,12,5,28,x*13,14,0);
+                    for (int k=0;k<3;k++) {
+                        int i=side*3+k;
+                        cube(root,"wheel_"+i,42,90,-3,-3,-3,6,6,6,x*19,21,(k-1)*9);
+                        cube(root,"tread_"+i,0,102,-5,-2,-4,10,4,8,x*13,23,(k-1)*9);
+                    }
                 }
-                cube(root,"exhaust_left",93,52,-2,-7,-2,4,9,4,-6,3,6);
-                cube(root,"exhaust_right",93,52,-2,-7,-2,4,9,4,6,3,6);
+                // Two long articulated arms: hydraulic crusher and rotating auger.
+                cube(root,"tool_0",0,52,-5,-4,-5,10,12,10,-13,7,-7);
+                cube(root,"drill_head",69,73,-4,-4,-11,8,8,14,-13,14,-11);
+                cube(root,"drill_tip",97,74,-3,-3,-10,6,6,11,-13,14,-22);
+                cube(root,"tool_1",0,52,-5,-4,-5,10,12,10,13,7,-7);
+                cube(root,"crusher_upper",69,73,-6,-4,-8,12,5,14,13,16,-10);
+                cube(root,"crusher_lower",69,73,-6,1,-8,12,5,14,13,18,-10);
+                cube(root,"exhaust_left",93,52,-2,-9,-2,4,13,4,-6,-2,8);
+                cube(root,"exhaust_right",93,52,-2,-9,-2,4,13,4,6,-2,8);
+                cube(root,"hydraulic_left",42,73,-2,-5,-2,4,9,4,-10,7,3);
+                cube(root,"hydraulic_right",42,73,-2,-5,-2,4,9,4,10,7,3);
             }
         }
         return LayerDefinition.create(mesh, 128, 128);

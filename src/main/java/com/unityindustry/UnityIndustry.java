@@ -1,6 +1,8 @@
 package com.unityindustry;
 
 import com.unityindustry.entity.ModMachines;
+import com.unityindustry.sound.ReworkSounds;
+import com.unityindustry.sound.ReworkSounds;
 import com.unityindustry.gameplay.UnityEnergy;
 import com.unityindustry.gameplay.UnityHarvest;
 import com.unityindustry.gameplay.UnityPowers;
@@ -31,6 +33,8 @@ public final class UnityIndustry implements ModInitializer {
     @Override
     public void onInitialize() {
         // The original production/prototype registrations from the working baseline.
+        ReworkSounds.initialize();
+        ReworkSounds.initialize();
         CoreComponents.initialize();
         ModEntities.initialize();
         UnityEnergy.initialize();
