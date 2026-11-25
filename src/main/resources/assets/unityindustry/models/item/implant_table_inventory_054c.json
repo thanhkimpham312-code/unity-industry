@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "unityindustry:item/implant_table_inventory_054c"
+  }
+}

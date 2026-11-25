@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "unityindustry:item/scrap_crawler_spawn_egg_inventory_054c"
+  }
+}
