@@ -1,0 +1,7 @@
+{
+  "criteria": {
+    "prototype_manual_unlock": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}
