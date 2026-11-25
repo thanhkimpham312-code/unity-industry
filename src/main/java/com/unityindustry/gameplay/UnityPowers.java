@@ -112,7 +112,7 @@ public final class UnityPowers {
     /** White Laser - aim at a Mob with the crosshair first, then lock that exact Mob.
      *  ALL Mob subclasses are valid (hostile / neutral / passive / modded).
      *  No players. The first Mob intersected by the 15-block ray wins; a wall
-     *  cuts the ray off. Damage: 5 HP / 10 ticks, UE: 1 / 10 ticks.
+     *  cuts the ray off. Damage: 12 HP / 10 ticks (24 HP/s), UE: 1 / 10 ticks.
      *  No cooldown and no target switching until the key is released.
      */
     private static void whiteLaser(ServerPlayer player) {
@@ -152,7 +152,7 @@ public final class UnityPowers {
                 WHITE_LASER_ENDED.add(caster);
                 return;
             }
-            target.hurtServer(level, level.damageSources().magic(), 5.0F);
+            target.hurtServer(level, level.damageSources().magic(), 12.0F);
             if (!target.isAlive()) {
                 UnityProgress.award(player, "laser_kill");
                 WHITE_LASER_LOCK.remove(caster);
