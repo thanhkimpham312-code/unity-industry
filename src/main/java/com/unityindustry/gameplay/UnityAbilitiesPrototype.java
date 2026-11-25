@@ -26,6 +26,9 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.EquipmentSlot;
 
 /**
@@ -69,15 +72,20 @@ public final class UnityAbilitiesPrototype {
                 long now = r.level().getGameTime();
                 if (now > r.until()) { it.remove(); continue; }
                 if (now % 10 != 0) continue;
-                for (int dx=-2;dx<=2;dx++) for(int dz=-2;dz<=2;dz++) {
-                    Vec3 at = r.at().add(dx,0,dz);
-                    r.level().sendParticles(ParticleTypes.WITCH, at.x, at.y+0.25,at.z,
-                        1, 0,0.15,0,0.01);
+                // Large, circular Wither Rose field: radius 6 blocks, not a square.
+                for (int dx = -6; dx <= 6; dx += 2) for (int dz = -6; dz <= 6; dz += 2) {
+                    if (dx * dx + dz * dz > 36) continue;
+                    Vec3 at = r.at().add(dx, 0, dz);
+                    r.level().sendParticles(ParticleTypes.WITCH, at.x, at.y + 0.25, at.z,
+                        2, 0.15, 0.2, 0.15, 0.01);
                 }
                 for (Mob mob : r.level().getEntitiesOfClass(Mob.class,
-                        new AABB(r.at().add(-2.5,-0.2,-2.5),r.at().add(2.5,2.5,2.5)),
-                        m -> m.isAlive() && m.getType().getCategory() == MobCategory.MONSTER)) {
-                    mob.addEffect(new MobEffectInstance(MobEffects.WITHER, 45, 0));
+                        new AABB(r.at().add(-6.0, -2.0, -6.0), r.at().add(6.0, 4.0, 6.0)),
+                        m -> m.isAlive() && m.getType().getCategory() == MobCategory.MONSTER
+                            && Math.pow(m.getX() - r.at().x, 2) + Math.pow(m.getZ() - r.at().z, 2) <= 36.0)) {
+                    // Every 10 ticks: 4 HP direct damage = 8 HP/s, plus Wither II.
+                    mob.hurtServer(r.level(), r.level().damageSources().magic(), 4.0F);
+                    if (mob.isAlive()) mob.addEffect(new MobEffectInstance(MobEffects.WITHER, 45, 1));
                 }
             }
         });
@@ -119,38 +127,56 @@ public final class UnityAbilitiesPrototype {
         if (!(player.level() instanceof ServerLevel level)) return;
         if (!ChestplateCores.get(player.getItemBySlot(EquipmentSlot.CHEST)).contains(CoreType.ULTRA)) return;
         if (!UnityEnergy.consume(player, 10L)) return;
-        // Non-harvestable visual field. Real Wither Rose block models not yet generated.
-        ROSES.add(new RoseField(level, player.getUUID(),player.position(),level.getGameTime()+200));
+        // Only one active field per player: stronger damage must not stack without a bound.
+        ROSES.removeIf(field -> field.owner().equals(player.getUUID()));
+        ROSES.add(new RoseField(level, player.getUUID(), player.position(), level.getGameTime() + 200));
     }
 
+    /** Ultra Core skill 3: high-power terrain-breaking skull explosion.
+     *  Blocks along the look ray are hit first; no detonating through walls.
+     *  The vanilla TNT explosion interaction handles terrain and entity damage.
+     */
     public static void witherSkull(ServerPlayer player) {
         if (!(player.level() instanceof ServerLevel level)) return;
         if (!ChestplateCores.get(player.getItemBySlot(EquipmentSlot.CHEST)).contains(CoreType.ULTRA)) return;
         if (UnityEnergy.get(player) < 5L) return;
+
         Vec3 source = player.getEyePosition();
         Vec3 look = player.getLookAngle().normalize();
+        Vec3 far = source.add(look.scale(20.0));
+        HitResult wall = level.clip(new ClipContext(source, far,
+            ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+        double wallRange = wall.getType() == HitResult.Type.MISS
+            ? 20.0 : Math.min(20.0, source.distanceTo(wall.getLocation()));
+
         Mob target = null;
-        double range = 20.0;
-        for (Mob mob : level.getEntitiesOfClass(Mob.class,player.getBoundingBox().inflate(range),
-                m -> m.isAlive() && m.getType().getCategory()==MobCategory.MONSTER && player.hasLineOfSight(m))) {
+        double range = wallRange;
+        for (Mob mob : level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(20.0),
+                m -> m.isAlive() && m.getType().getCategory() == MobCategory.MONSTER
+                    && player.hasLineOfSight(m))) {
             Vec3 to = mob.getBoundingBox().getCenter().subtract(source);
             double along = to.dot(look);
-            if (along<0 || along>range || to.subtract(look.scale(along)).lengthSqr()>1.8) continue;
-            if (along<range) { range=along; target=mob; }
+            if (along < 0 || along > range
+                    || to.subtract(look.scale(along)).lengthSqr() > 1.8) continue;
+            range = along;
+            target = mob;
         }
         if (!UnityEnergy.consume(player, 5L)) return;
-        Vec3 endpoint=target==null?source.add(look.scale(20)):target.getBoundingBox().getCenter();
-        Vec3 d=endpoint.subtract(source);
-        for(int i=0;i<=40;i++){
-            Vec3 at=source.add(d.scale(i/40.0));
-            level.sendParticles(ParticleTypes.SMOKE,at.x,at.y,at.z,1,0,0,0,0.0);
+
+        Vec3 endpoint = target == null
+            ? source.add(look.scale(wallRange))
+            : target.getBoundingBox().getCenter();
+        Vec3 direction = endpoint.subtract(source);
+        for (int i = 0; i <= 40; i++) {
+            Vec3 at = source.add(direction.scale(i / 40.0));
+            level.sendParticles(ParticleTypes.SMOKE, at.x, at.y, at.z,
+                1, 0, 0, 0, 0.0);
         }
-        level.sendParticles(ParticleTypes.EXPLOSION,endpoint.x,endpoint.y,endpoint.z,1,0,0,0,0);
-        for (Mob mob : level.getEntitiesOfClass(Mob.class,new AABB(endpoint,endpoint).inflate(2.0),
-                m -> m.isAlive() && m.getType().getCategory()==MobCategory.MONSTER)) {
-            mob.hurtServer(level,level.damageSources().magic(),20.0F);
-        }
-        // Intentionally no terrain explosion. This is a hitscan prototype, NOT a flying skull model.
+        // Explosion power 5 (TNT = 4). Vanilla handles knockback, damage,
+        // block resistance, drops and world/server explosion rules.
+        // CASTER CAN BE HURT: back up before firing near your own structures.
+        level.explode(player, endpoint.x, endpoint.y, endpoint.z, 5.0F,
+            Level.ExplosionInteraction.TNT);
     }
     private UnityAbilitiesPrototype() { }
 }
