@@ -3,12 +3,18 @@
   "id": "unityindustry",
   "version": "${version}",
   "name": "Unity Industry V2 Saga",
-  "description": "Existing Unity Industry stations, equipment, cores and gameplay plus experimental hostile industrial machines.",
-  "authors": ["Unity Industry project"],
+  "description": "Industry crafting stations, cores, equipment, energy, progression and industrial skills. No custom mobs or bosses.",
+  "authors": [
+    "Unity Industry project"
+  ],
   "environment": "*",
   "entrypoints": {
-    "main": ["com.unityindustry.UnityIndustry"],
-    "client": ["com.unityindustry.client.UnityIndustryClient"]
+    "main": [
+      "com.unityindustry.UnityIndustry"
+    ],
+    "client": [
+      "com.unityindustry.client.UnityIndustryClient"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.18.4",
