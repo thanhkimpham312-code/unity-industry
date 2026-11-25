@@ -10,7 +10,7 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 
-/** Original screens/renderers/client gameplay plus the new shared mechanical prototype model. */
+/** Preserve old gameplay/GUI; render five existing mobs with distinct V2 mechanical models. */
 public final class UnityIndustryClient implements ClientModInitializer {
     public static final ModelLayerLocation MACHINE_LAYER =
         new ModelLayerLocation(UnityIndustry.id("machine"), "main");
@@ -23,22 +23,22 @@ public final class UnityIndustryClient implements ClientModInitializer {
         MenuScreens.register(ModMenus.IMPLANT, ImplantScreen::new);
         MenuScreens.register(ModMenus.REVERSE, ImplantScreen::new);
 
-        // Restore original, individual, blocky industrial mob models.
-        IndustrialModelLayers.register();
-        EntityRenderers.register(ModEntities.SCRAP_CRAWLER, ctx -> new IndustrialMobRenderer<>(
-            ctx, IndustrialModelLayers.SCRAP, IndustrialMobModel.Kind.SCRAP_CRAWLER,
+        // New independent mechanical 3D rigs for the five existing entity IDs.
+        ReworkedIndustrialLayers.register();
+        EntityRenderers.register(ModEntities.SCRAP_CRAWLER, ctx -> new ReworkedIndustrialRenderer<>(
+            ctx, ReworkedIndustrialLayers.CRAWLER, ReworkedIndustrialModel.Kind.SCRAP_CRAWLER,
             "textures/entity/scrap_crawler.png", 0.6f));
-        EntityRenderers.register(ModEntities.MINING_DRONE, ctx -> new IndustrialMobRenderer<>(
-            ctx, IndustrialModelLayers.DRONE, IndustrialMobModel.Kind.MINING_DRONE,
+        EntityRenderers.register(ModEntities.MINING_DRONE, ctx -> new ReworkedIndustrialRenderer<>(
+            ctx, ReworkedIndustrialLayers.DRONE, ReworkedIndustrialModel.Kind.MINING_DRONE,
             "textures/entity/mining_drone.png", 0.35f));
-        EntityRenderers.register(ModEntities.CRYSTAL_BEETLE, ctx -> new IndustrialMobRenderer<>(
-            ctx, IndustrialModelLayers.BEETLE, IndustrialMobModel.Kind.CRYSTAL_BEETLE,
+        EntityRenderers.register(ModEntities.CRYSTAL_BEETLE, ctx -> new ReworkedIndustrialRenderer<>(
+            ctx, ReworkedIndustrialLayers.BEETLE, ReworkedIndustrialModel.Kind.CRYSTAL_BEETLE,
             "textures/entity/crystal_beetle.png", 0.4f));
-        EntityRenderers.register(ModEntities.SECURITY_SENTINEL, ctx -> new IndustrialMobRenderer<>(
-            ctx, IndustrialModelLayers.SENTINEL, IndustrialMobModel.Kind.SECURITY_SENTINEL,
+        EntityRenderers.register(ModEntities.SECURITY_SENTINEL, ctx -> new ReworkedIndustrialRenderer<>(
+            ctx, ReworkedIndustrialLayers.SENTINEL, ReworkedIndustrialModel.Kind.SECURITY_SENTINEL,
             "textures/entity/security_sentinel.png", 0.45f));
-        EntityRenderers.register(ModEntities.EXCAVATOR_MK1, ctx -> new IndustrialMobRenderer<>(
-            ctx, IndustrialModelLayers.EXCAVATOR, IndustrialMobModel.Kind.EXCAVATOR_MK1,
+        EntityRenderers.register(ModEntities.EXCAVATOR_MK1, ctx -> new ReworkedIndustrialRenderer<>(
+            ctx, ReworkedIndustrialLayers.EXCAVATOR, ReworkedIndustrialModel.Kind.EXCAVATOR_MK1,
             "textures/entity/excavator_mk1.png", 0.9f));
 
         // Restore original client-side gameplay and scanner rendering.

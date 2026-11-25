@@ -1,22 +1,38 @@
 package com.unityindustry.entity;
+
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
-import com.unityindustry.gameplay.UnityProgress;
-import com.unityindustry.rules.WorldStageRules;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-/** Flying hostile security bot prototype, using ranged Blaze mechanics for now. */
+
+/** V2 Security Sentinel: hostile autonomous turret and target marking unit. */
 public final class SecuritySentinelEntity extends Blaze {
-    private boolean scaled;
-    public SecuritySentinelEntity(EntityType<? extends Blaze> type, Level level) { super(type, level); }
-    @Override public void tick() {
+    private int appliedStage = -1;
+    private boolean boosted;
+
+    public SecuritySentinelEntity(EntityType<? extends Blaze> type, Level level) {
+        super(type, level);
+    }
+
+    @Override
+    public void tick() {
         super.tick();
-        if (scaled || !(level() instanceof ServerLevel world)) return;
-        scaled = true;
-        double factor = WorldStageRules.scrapCrawlerMultiplier(UnityProgress.worldStage(world.getServer()));
-        getAttribute(Attributes.MAX_HEALTH).setBaseValue(26.0 * factor);
-        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(5.0 * factor);
-        setHealth((float)(26.0 * factor));
+        if (!(level() instanceof ServerLevel server) || !isAlive()) return;
+        int stage = ReworkCombat.stage(server);
+        boolean overclock = getTarget() != null && tickCount % 170 < 45;
+        if (stage != appliedStage || boosted != overclock) {
+            ReworkCombat.apply(this, stage, 26.0D, 5.0D, 0.24D, 5.0D, overclock);
+            appliedStage = stage;
+            boosted = overclock;
+        }
+        LivingEntity target = getTarget();
+        if (target != null && tickCount % 90 == 0 && distanceToSqr(target) <= 256.0D
+            && getSensing().hasLineOfSight(target)) {
+            target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 80, 0), this);
+            if (stage >= 2) target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 50, 0), this);
+        }
     }
 }
