@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "unityindustry:item/mining_drone_spawn_egg"
-  }
-}
