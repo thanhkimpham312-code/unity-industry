@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "unityindustry:item/rivet_hound_spawn_egg"
+  }
+}

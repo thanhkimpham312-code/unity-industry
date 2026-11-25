@@ -86,7 +86,7 @@ public final class ModEntities {
                         UnityProgress.worldStage(world.getLevel().getServer()) >= 2 &&
                         Monster.checkMonsterSpawnRules(type, world, reason, pos, random));
                 return mob;
-            }).sized(1.75F, 1.55F).clientTrackingRange(10).build(SENTINEL_KEY));
+            }).sized(2.45F, 2.15F).clientTrackingRange(10).build(SENTINEL_KEY));
 
     public static final EntityType<ExcavatorMk1Entity> EXCAVATOR_MK1 = Registry.register(
         BuiltInRegistries.ENTITY_TYPE, EXCAVATOR_KEY,
@@ -100,7 +100,7 @@ public final class ModEntities {
                         UnityProgress.worldStage(world.getLevel().getServer()) >= 4 &&
                         Monster.checkMonsterSpawnRules(type, world, reason, pos, random));
                 return mob;
-            }).sized(2.4F, 2.45F).clientTrackingRange(12).build(EXCAVATOR_KEY));
+            }).sized(3.55F, 3.15F).clientTrackingRange(12).build(EXCAVATOR_KEY));
 
     public static void initialize() {
         BiomeModifications.addSpawn(BiomeSelectors.foundInOverworld(),

@@ -53,5 +53,15 @@
   "entity.unityindustry.prime_enforcer": "Prime Enforcer",
   "entity.unityindustry.furnace_tyrant": "Furnace Tyrant",
   "entity.unityindustry.assembly_overlord": "Assembly Overlord",
-  "entity.unityindustry.prime_engine": "Prime Engine"
+  "entity.unityindustry.prime_engine": "Prime Engine",
+  "item.unityindustry.rivet_hound_spawn_egg": "Rivet Hound Spawn Egg",
+  "item.unityindustry.bolt_sentry_spawn_egg": "Bolt Sentry Spawn Egg",
+  "item.unityindustry.smelter_brute_spawn_egg": "Smelter Brute Spawn Egg",
+  "item.unityindustry.conveyor_stalker_spawn_egg": "Conveyor Stalker Spawn Egg",
+  "item.unityindustry.arc_warden_spawn_egg": "Arc Warden Spawn Egg",
+  "item.unityindustry.press_titan_spawn_egg": "Press Titan Spawn Egg",
+  "item.unityindustry.prime_enforcer_spawn_egg": "Prime Enforcer Spawn Egg",
+  "item.unityindustry.furnace_tyrant_spawn_egg": "Furnace Tyrant Spawn Egg",
+  "item.unityindustry.assembly_overlord_spawn_egg": "Assembly Overlord Spawn Egg",
+  "item.unityindustry.prime_engine_spawn_egg": "Prime Engine Spawn Egg"
 }

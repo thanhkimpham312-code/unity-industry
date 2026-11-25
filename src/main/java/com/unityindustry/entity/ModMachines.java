@@ -2,6 +2,7 @@ package com.unityindustry.entity;
 
 import com.unityindustry.UnityIndustry;
 import com.unityindustry.gameplay.UnityProgress;
+import com.unityindustry.registry.PrototypeMachineEggs;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -75,6 +76,9 @@ public final class ModMachines {
                     MobCategory.MONSTER, type, spec.spawnWeight(), 1, 2);
             }
         }
-        UnityIndustry.LOGGER.info("Registered {} prototype industrial machines", TYPES.size());
+        // Register 10 unique spawn eggs AFTER their entity types have been registered.
+        // The 5 legacy mob eggs remain in ModItems and must not be duplicated.
+        PrototypeMachineEggs.register();
+        UnityIndustry.LOGGER.info("Registered {} prototype industrial machines and their spawn eggs", TYPES.size());
     }
 }
