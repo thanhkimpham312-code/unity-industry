@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "unityindustry:item/smelter_brute_spawn_egg"
-  }
-}
