@@ -44,6 +44,10 @@ public final class UnityAbilitiesPrototype {
         Identifier.fromNamespaceAndPath("c", "ores"));
     private static final Map<UUID, Scan> SCANS = new HashMap<>();
     private static final List<RoseField> ROSES = new ArrayList<>();
+    // Wide area: 10-block horizontal radius, 3 blocks below and 6 above.
+    // Damage is kept at 4 HP per 10 ticks (8 HP/s) + Wither II.
+    private static final double ROSE_RADIUS = 10.0D;
+    private static final double ROSE_RADIUS_SQ = ROSE_RADIUS * ROSE_RADIUS;
 
     public static void initialize() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
@@ -72,18 +76,29 @@ public final class UnityAbilitiesPrototype {
                 long now = r.level().getGameTime();
                 if (now > r.until()) { it.remove(); continue; }
                 if (now % 10 != 0) continue;
-                // Large, circular Wither Rose field: radius 6 blocks, not a square.
-                for (int dx = -6; dx <= 6; dx += 2) for (int dz = -6; dz <= 6; dz += 2) {
-                    if (dx * dx + dz * dz > 36) continue;
-                    Vec3 at = r.at().add(dx, 0, dz);
-                    r.level().sendParticles(ParticleTypes.WITCH, at.x, at.y + 0.25, at.z,
-                        2, 0.15, 0.2, 0.15, 0.01);
+                // Large cylindrical field: all Mob subclasses (passive, neutral,
+                // hostile and modded). Players are not Mob instances.
+                // Use a capped number of animated particles to limit network load.
+                for (int i = 0; i < 36; i++) {
+                    double angle = i * (Math.PI * 2.0D / 36.0D) + now * 0.025D;
+                    double ring = switch (i % 3) {
+                        case 0 -> 2.5D;
+                        case 1 -> 6.0D;
+                        default -> ROSE_RADIUS - 0.35D;
+                    };
+                    Vec3 at = r.at().add(Math.cos(angle) * ring, 0, Math.sin(angle) * ring);
+                    r.level().sendParticles(ParticleTypes.WITCH, at.x, at.y + 0.35D, at.z,
+                        1, 0.10D, 0.25D, 0.10D, 0.01D);
                 }
-                for (Mob mob : r.level().getEntitiesOfClass(Mob.class,
-                        new AABB(r.at().add(-6.0, -2.0, -6.0), r.at().add(6.0, 4.0, 6.0)),
-                        m -> m.isAlive() && m.getType().getCategory() == MobCategory.MONSTER
-                            && Math.pow(m.getX() - r.at().x, 2) + Math.pow(m.getZ() - r.at().z, 2) <= 36.0)) {
-                    // Every 10 ticks: 4 HP direct damage = 8 HP/s, plus Wither II.
+                AABB effectBounds = new AABB(
+                    r.at().add(-ROSE_RADIUS, -3.0D, -ROSE_RADIUS),
+                    r.at().add(ROSE_RADIUS, 6.0D, ROSE_RADIUS));
+                for (Mob mob : r.level().getEntitiesOfClass(Mob.class, effectBounds,
+                        m -> m.isAlive()
+                            && (m.getX() - r.at().x) * (m.getX() - r.at().x)
+                             + (m.getZ() - r.at().z) * (m.getZ() - r.at().z) <= ROSE_RADIUS_SQ)) {
+                    // 4 HP per 10 ticks = 8 HP/s on all mobs, plus Wither II.
+                    // Undead may be immune to the Wither effect, but still receive direct damage.
                     mob.hurtServer(r.level(), r.level().damageSources().magic(), 4.0F);
                     if (mob.isAlive()) mob.addEffect(new MobEffectInstance(MobEffects.WITHER, 45, 1));
                 }
