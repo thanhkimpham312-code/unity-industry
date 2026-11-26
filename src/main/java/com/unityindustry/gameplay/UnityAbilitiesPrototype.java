@@ -76,20 +76,10 @@ public final class UnityAbilitiesPrototype {
                 long now = r.level().getGameTime();
                 if (now > r.until()) { it.remove(); continue; }
                 if (now % 10 != 0) continue;
-                // Large cylindrical field: all Mob subclasses (passive, neutral,
-                // hostile and modded). Players are not Mob instances.
-                // Use a capped number of animated particles to limit network load.
-                for (int i = 0; i < 36; i++) {
-                    double angle = i * (Math.PI * 2.0D / 36.0D) + now * 0.025D;
-                    double ring = switch (i % 3) {
-                        case 0 -> 2.5D;
-                        case 1 -> 6.0D;
-                        default -> ROSE_RADIUS - 0.35D;
-                    };
-                    Vec3 at = r.at().add(Math.cos(angle) * ring, 0, Math.sin(angle) * ring);
-                    r.level().sendParticles(ParticleTypes.WITCH, at.x, at.y + 0.35D, at.z,
-                        1, 0.10D, 0.25D, 0.10D, 0.01D);
-                }
+                // All Mob subclasses (passive, neutral, hostile and modded) are
+                // affected; players are excluded. The field visuals are bounded
+                // at 160 particles per 10 ticks to avoid runaway particle spam.
+                roseVisuals(r.level(), r.at(), now);
                 AABB effectBounds = new AABB(
                     r.at().add(-ROSE_RADIUS, -3.0D, -ROSE_RADIUS),
                     r.at().add(ROSE_RADIUS, 6.0D, ROSE_RADIUS));
@@ -142,9 +132,17 @@ public final class UnityAbilitiesPrototype {
         if (!(player.level() instanceof ServerLevel level)) return;
         if (!ChestplateCores.get(player.getItemBySlot(EquipmentSlot.CHEST)).contains(CoreType.ULTRA)) return;
         if (!UnityEnergy.consume(player, 10L)) return;
-        // Only one active field per player: stronger damage must not stack without a bound.
+        // Only one active field per player: strong damage must not stack.
         ROSES.removeIf(field -> field.owner().equals(player.getUUID()));
-        ROSES.add(new RoseField(level, player.getUUID(), player.position(), level.getGameTime() + 200));
+        Vec3 origin = player.position();
+        ROSES.add(new RoseField(level, player.getUUID(), origin, level.getGameTime() + 200));
+        // Initial bloom: a dramatic pulse of purple rose mist and soul sparks.
+        level.sendParticles(ParticleTypes.WITCH, origin.x, origin.y + 0.7D, origin.z,
+            64, 2.5D, 0.9D, 2.5D, 0.04D);
+        level.sendParticles(ParticleTypes.REVERSE_PORTAL, origin.x, origin.y + 0.7D, origin.z,
+            48, 1.8D, 1.3D, 1.8D, 0.12D);
+        level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, origin.x, origin.y + 0.3D, origin.z,
+            24, 1.1D, 0.3D, 1.1D, 0.01D);
     }
 
     /** Ultra Core skill 3: high-power terrain-breaking skull explosion.
@@ -181,17 +179,129 @@ public final class UnityAbilitiesPrototype {
         Vec3 endpoint = target == null
             ? source.add(look.scale(wallRange))
             : target.getBoundingBox().getCenter();
-        Vec3 direction = endpoint.subtract(source);
-        for (int i = 0; i <= 40; i++) {
-            Vec3 at = source.add(direction.scale(i / 40.0));
-            level.sendParticles(ParticleTypes.SMOKE, at.x, at.y, at.z,
-                1, 0, 0, 0, 0.0);
-        }
+        // Arcane twin-helix trail + a hollow skull-like energy core.
+        // This is cosmetic and does not delay the already validated explosion.
+        skullFlightVisuals(level, source, endpoint);
+        skullImpactVisuals(level, endpoint);
         // Explosion power 5 (TNT = 4). Vanilla handles knockback, damage,
         // block resistance, drops and world/server explosion rules.
         // CASTER CAN BE HURT: back up before firing near your own structures.
         level.explode(player, endpoint.x, endpoint.y, endpoint.z, 5.0F,
             Level.ExplosionInteraction.TNT);
     }
+
+    /**
+     * Four concentric counter-rotating rose-petal rings and a rising soul vortex.
+     * Called once every 10 ticks for each active field. 48 ring clusters x 3
+     * plus 8 vortex clusters x 2 = 160 particles / half-second / field.
+     */
+    private static void roseVisuals(ServerLevel level, Vec3 center, long gameTime) {
+        final int sectors = 12;
+        for (int ring = 0; ring < 4; ring++) {
+            double radius = switch (ring) {
+                case 0 -> 2.5D;
+                case 1 -> 5.0D;
+                case 2 -> 7.5D;
+                default -> 9.8D;
+            };
+            double angularSpeed = (ring % 2 == 0 ? 0.038D : -0.030D);
+            for (int i = 0; i < sectors; i++) {
+                double angle = (2.0D * Math.PI * i / sectors)
+                    + gameTime * angularSpeed + ring * 0.45D;
+                double height = 0.40D + ring * 0.56D
+                    + Math.sin(gameTime * 0.065D + i * 0.7D) * 0.38D;
+                double px = center.x + Math.cos(angle) * radius;
+                double pz = center.z + Math.sin(angle) * radius;
+                // Purple rose petals, dark portal haze, and soul-blue rim.
+                var particle = switch (ring) {
+                    case 0, 2 -> ParticleTypes.WITCH;
+                    case 1 -> ParticleTypes.REVERSE_PORTAL;
+                    default -> ParticleTypes.SOUL_FIRE_FLAME;
+                };
+                level.sendParticles(particle, px, center.y + height, pz,
+                    3, 0.24D, 0.30D, 0.24D, 0.012D);
+            }
+        }
+        // A short twisting column of souls rises in the middle.
+        for (int i = 0; i < 8; i++) {
+            double angle = gameTime * 0.08D + i * Math.PI / 4.0D;
+            double radius = 0.6D + (i % 3) * 0.46D;
+            level.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                center.x + Math.cos(angle) * radius,
+                center.y + 0.65D + i * 0.46D,
+                center.z + Math.sin(angle) * radius,
+                2, 0.10D, 0.22D, 0.10D, 0.015D);
+        }
+    }
+
+    /**
+     * A denser dark-purple projectile path: luminous central smoke, a pair
+     * of counterbalancing soul trails and a flickering wither core.
+     * An instantaneous particle visualization: not a new persistent entity.
+     */
+    private static void skullFlightVisuals(ServerLevel level, Vec3 from, Vec3 to) {
+        Vec3 travel = to.subtract(from);
+        double distance = travel.length();
+        if (distance < 0.01D) return;
+
+        Vec3 forward = travel.normalize();
+        Vec3 right = forward.cross(new Vec3(0.0D, 1.0D, 0.0D));
+        if (right.lengthSqr() < 0.0001D) right = new Vec3(1.0D, 0.0D, 0.0D);
+        right = right.normalize();
+        Vec3 up = forward.cross(right).normalize();
+        int steps = Math.max(10, Math.min(54, (int) Math.ceil(distance / 0.36D)));
+
+        // Two alternating arcs twist around the projectile's central spine.
+        for (int i = 0; i <= steps; i++) {
+            double t = i / (double) steps;
+            Vec3 axis = from.add(travel.scale(t));
+            double turn = t * Math.PI * 10.0D;
+            double width = 0.14D + 0.32D * Math.sin(Math.PI * t);
+            Vec3 offset = right.scale(Math.cos(turn) * width)
+                .add(up.scale(Math.sin(turn) * width));
+            Vec3 a = axis.add(offset);
+            Vec3 b = axis.subtract(offset);
+            level.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                a.x, a.y, a.z, 2, 0.045D, 0.045D, 0.045D, 0.003D);
+            level.sendParticles(ParticleTypes.WITCH,
+                b.x, b.y, b.z, 2, 0.055D, 0.055D, 0.055D, 0.003D);
+            if (i % 3 == 0) {
+                level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                    axis.x, axis.y, axis.z, 2, 0.08D, 0.08D, 0.08D, 0.012D);
+            }
+            if (i % 5 == 0) {
+                level.sendParticles(ParticleTypes.SMOKE,
+                    axis.x, axis.y, axis.z, 2, 0.13D, 0.13D, 0.13D, 0.012D);
+            }
+        }
+    }
+
+    /** Three-dimensional energy rings plus a dense purple-black explosion bloom. */
+    private static void skullImpactVisuals(ServerLevel level, Vec3 point) {
+        for (int ring = 0; ring < 3; ring++) {
+            double radius = 1.4D + ring * 1.35D;
+            for (int i = 0; i < 16; i++) {
+                double angle = 2.0D * Math.PI * i / 16.0D + ring * 0.20D;
+                double x = point.x + Math.cos(angle) * radius;
+                double y = point.y + (ring == 1 ? Math.sin(angle) * radius : 0.25D);
+                double z = point.z + (ring == 1 ? 0.0D : Math.sin(angle) * radius);
+                var particle = ring == 0 ? ParticleTypes.SOUL_FIRE_FLAME
+                    : ring == 1 ? ParticleTypes.REVERSE_PORTAL : ParticleTypes.WITCH;
+                level.sendParticles(particle, x, y, z,
+                    2, 0.08D, 0.08D, 0.08D, 0.03D);
+            }
+        }
+        level.sendParticles(ParticleTypes.WITCH, point.x, point.y, point.z,
+            70, 1.4D, 1.3D, 1.4D, 0.14D);
+        level.sendParticles(ParticleTypes.REVERSE_PORTAL, point.x, point.y, point.z,
+            55, 1.2D, 1.4D, 1.2D, 0.18D);
+        level.sendParticles(ParticleTypes.SMOKE, point.x, point.y, point.z,
+            65, 1.5D, 0.9D, 1.5D, 0.10D);
+        level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, point.x, point.y, point.z,
+            44, 1.2D, 0.8D, 1.2D, 0.055D);
+        level.sendParticles(ParticleTypes.EXPLOSION, point.x, point.y, point.z,
+            5, 0.8D, 0.8D, 0.8D, 0.02D);
+    }
+
     private UnityAbilitiesPrototype() { }
 }
